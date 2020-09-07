@@ -1,0 +1,7 @@
+{
+  "name": "💅AD UI Generator",
+  "id": "884734001362100677",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html"
+}
