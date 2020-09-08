@@ -1,6 +1,7 @@
 import Alert from './Alert';
 import Button from './Button';
 import ButtonGroup from './ButtonGroup';
+import Card from './Card';
 import Checkbox from './Checkbox';
 import CheckboxGroup from './CheckboxGroup';
 import ColorPicker from './ColorPicker';
@@ -130,12 +131,8 @@ const generate: IGenerate = node => {
   /**
    * Component: Card
    */
-  if (name === '卡片') {
-    return `<Card
-      ${additionalStyle ? `style={{ ${additionalStyle} }}` : ''}
-    >
-      ${childrenCodes}
-    </Card>`;
+  if (name === '卡片' || mainComponent?.name === '卡片') {
+    return Card(node, generate, additionalStyle);
   }
   if (name === '标题 + 描述文字') {
     let title = '';
@@ -178,7 +175,7 @@ const generate: IGenerate = node => {
     ></Card.Header>`;
   }
 
-    /**
+  /**
    * Component: Alert
    */
   if (name.includes('提醒') || mainComponent?.name.includes('提醒')) {
