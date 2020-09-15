@@ -26,6 +26,9 @@ export const stringifyStyle = (style: IBaseObject) =>
  * @return TSize
  */
 export const getSize: (node: SceneNode) => TSize = node => {
+  if (!node) {
+    return undefined
+  }
   let size: TSize;
 
   if (node.type === 'TEXT') {

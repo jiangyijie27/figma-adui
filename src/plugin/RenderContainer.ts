@@ -12,17 +12,25 @@ const RenderContainer = (
       .map(o => generate(o))
       .join('');
   }
-  if (name === 'Container: flex' || name === 'Container: space-between') {
+  if (name.includes("Container: flex")) {
     additionalStyle.display = 'flex';
     additionalStyle.alignItems = 'center';
   }
 
-  if (name === 'Container: space-between') {
+  if (name === 'Container: flex-sb') {
     additionalStyle.justifyContent = 'space-between';
+  }
+
+  if (name === 'Container: flex-c') {
+    additionalStyle.justifyContent = 'center';
   }
 
   if (node?.parent.name === '表单') {
     delete additionalStyle.marginLeft;
+  }
+
+  if (additionalStyle.display === "block") {
+    delete additionalStyle.display
   }
 
   return `<div

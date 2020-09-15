@@ -1,6 +1,6 @@
-import {getDisabled} from './utils';
+import {getDisabled, stringifyStyle} from './utils';
 
-const Switch = (node: SceneNode) => {
+const Switch = (node: SceneNode, additionalStyle: IBaseObject) => {
   let mainComponent: ComponentNode;
   if ('mainComponent' in node) {
     mainComponent = node.mainComponent;
@@ -44,6 +44,11 @@ const Switch = (node: SceneNode) => {
           checkedText="${text}"
           unCheckedText="${text}"
         `
+          : ''
+      }
+      ${
+        Object.keys(additionalStyle).length
+          ? `style={${stringifyStyle(additionalStyle)}}`
           : ''
       }
     />

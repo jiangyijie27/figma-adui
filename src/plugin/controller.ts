@@ -2,10 +2,13 @@ import Alert from './Alert';
 import Button from './Button';
 import ButtonGroup from './ButtonGroup';
 import Card from './Card';
+import CardHeader from './CardHeader';
 import Checkbox from './Checkbox';
 import CheckboxGroup from './CheckboxGroup';
 import ColorPicker from './ColorPicker';
 import DatePicker from './DatePicker';
+import Dialog from './Dialog';
+import Form from './Form';
 import FormItem from './FormItem';
 import FormTip from './FormTip';
 import Input from './Input';
@@ -15,18 +18,16 @@ import Radio from './Radio';
 import RadioGroup from './RadioGroup';
 import Select from './Select';
 import Switch from './Switch';
+import Table from './Table';
+import Tabs from './Tabs';
 import TimePicker from './TimePicker';
 import RenderContainer from './RenderContainer';
 import RenderTextNode from './RenderTextNode';
 import TreeSelect from './TreeSelect';
 
-figma.showUI(__html__, {width: 500, height: 1000});
+figma.showUI(__html__, {width: 700, height: 800});
 
-let oldSelection: SceneNode[] = [];
-
-const {selection} = figma.currentPage;
-
-const reverseArr = (input: any[]) => {
+const reverseArr = (input: readonly any[]) => {
   var ret = new Array();
   for (var i = input.length - 1; i >= 0; i--) {
     ret.push(input[i]);
@@ -36,11 +37,13 @@ const reverseArr = (input: any[]) => {
 
 const isContainer = (name: string) =>
   [
-    '卡片',
     'Container',
     'Container: flex',
-    'Container: space-between',
-    '标题 + 描述文字',
+    'Container: flex-c',
+    'Container: flex-sb',
+    '表单-wrap',
+    '表单',
+    'Pagination',
   ].includes(name);
 
 const generate: IGenerate = node => {
@@ -69,51 +72,141 @@ const generate: IGenerate = node => {
     // )
     childrenCodes = reverseArr(children)
       .map((o: SceneNode) => generate(o))
-      .join('\n');
+      .join('');
   }
 
-  if (isContainer(name)) {
-    const {parent} = node as any;
-    if (parent) {
-      let marginLeft = x;
-      let marginRight = parent.width - marginLeft - width;
-      let marginTop = 0;
-      const index = parent.children.findIndex(o => o.id === id);
-      const previousIndex =
-        index + (layoutMode === 'NONE' && parent.name !== '卡片' ? -1 : 1);
-      let previousElement;
-      if (previousIndex > -1) {
-        previousElement = parent.children[previousIndex];
-      }
-      if (previousElement && isContainer(previousElement.name)) {
-        marginTop = y - previousElement.y + previousElement.height;
-      }
+  /**
+   * 如果本身是 Container 且父级不是 Container，这时候代表是一个独立的块状元素
+   * 那么 marginLeft 和 marginRight 都要计算，
+   * 并且判断 marginTop，如果是第一项则需要 marginTop
+   * 并且判断 marginBottom，如果是最后一项则不需要 marginBottom
+   */
+  if (
+    node.parent?.name !== 'Container: flex' &&
+    node.parent?.name !== 'Container: flex-c' &&
+    node.parent?.name !== 'Container: flex-sb' &&
+    node.parent?.type !== 'PAGE'
+  ) {
+    style.display = 'block';
+    const {parent} = node;
+    let marginTop = 0;
+    let marginBottom = 0;
+    let marginLeft = x - (node.parent.name === '卡片标题' ? 24 : 0);
+    let marginRight = 'width' in parent ? parent.width - marginLeft - width : 0;
+    let children =
+      parent.name === '对话框'
+        ? parent.children.filter(o => !['卡片标题', '底栏'].includes(o.name))
+        : parent.children;
+    let index = children.findIndex(o => o.id === id);
+    /**
+     * 代表是第一项
+     */
+    if (
+      index === children.length - 1 &&
+      !parent.name.includes('数据项') &&
+      !parent.name.includes('单元格')
+    ) {
+      marginTop = y;
+    }
 
-      if (parent.name !== 'topContent') {
-        if (marginTop) {
-          style.marginTop = `${marginTop}px`;
-        }
+    /**
+     * 对话框比较特殊，卡片标题下的一个元素计算 marginTop
+     */
+    if (index === children.length - 1 && parent.name === '对话框') {
+      const dialogHeader = parent.children.find(o => o.name === '卡片标题');
+      marginTop = y - (dialogHeader ? dialogHeader.height : 0);
+    }
 
-        if (marginLeft) {
-          style.marginLeft = `${marginLeft}px`;
-        }
-        if (marginRight) {
-          style.marginRight = `${marginRight}px`;
-        }
+    /**
+     * 代表不是最后一项
+     */
+    if (index > 0) {
+      const nextElement = children[index - 1];
+      if (nextElement) {
+        marginBottom = nextElement.y - node.y - node.height;
+      }
+    }
+    if (marginTop > 0) {
+      style.marginTop = `${marginTop}px`;
+    }
+    if (node.type === 'TEXT' && marginRight > 0) {
+      style.marginRight = `${marginRight}px`;
+    }
+    if (marginBottom > 0) {
+      style.marginBottom = `${marginBottom}px`;
+    }
+    if (
+      marginLeft > 0 &&
+      node.parent?.name !== '表单' &&
+      !parent.name.includes('数据项') &&
+      !parent.name.includes('单元格')
+    ) {
+      style.marginLeft = `${marginLeft}px`;
+    }
+  }
+
+  /**
+   * 如果父级是 Container（除去 Container 和 space-between），则代表里面的元素是横向排列的，这时候就需要计算横向 padding
+   */
+  if (
+    node.parent?.name === 'Container: flex' ||
+    node.parent?.name === 'Container: flex-c'
+  ) {
+    const {parent} = node;
+    const index = parent.children.findIndex(o => o.id === id);
+    // children 是倒序的，parent.children.length - 1 为第一个
+    if (index < parent.children.length - 1) {
+      const prevSibling = parent.children[index + 1];
+      const marginLeft = node.x - prevSibling.x - prevSibling.width;
+      if (marginLeft > 0) {
+        style.marginLeft = `${marginLeft}px`;
+      }
+    } else if (node.parent?.name !== 'Container: flex-c') {
+      const marginLeft = node.x;
+      if (marginLeft > 0) {
+        style.marginLeft = `${marginLeft}px`;
       }
     }
   }
 
-  if (isContainer(node.parent?.name)) {
+  if (isContainer(name)) {
     const {parent} = node;
-    const index = parent.children.findIndex(o => o.id === id);
-    // children 是倒序的，index 为 0 说明是最后一个
-    if (index < parent.children.length - 1) {
-      const prevSibling = parent.children[index + 1];
-      const marginLeft = node.x - prevSibling.x - prevSibling.width;
-      if (marginLeft) {
-        style.marginLeft = `${marginLeft}px`;
+    if ('width' in parent && parent.name !== '表单') {
+      let newX = 0;
+      let newWidth = parent.width;
+      let newHeight = 0;
+      let newY = 0;
+      let minYOffset;
+
+      if ('children' in node) {
+        node.children.forEach(o => {
+          if (o.height > newHeight) {
+            // 说明 Container 的高度不足
+            newHeight = o.height;
+          }
+          if (minYOffset === undefined) {
+            minYOffset = o.y;
+          } else {
+            minYOffset = Math.min(minYOffset, o.y);
+          }
+        });
+
+        newY = minYOffset + node.y;
+
+        node.children.forEach(o => {
+          o.y = o.y - newY + node.y;
+          newHeight = Math.max(o.y + o.height, newHeight);
+        });
       }
+
+      try {
+        node.resize(newWidth, newHeight);
+        node.x = newX;
+        node.y = newY;
+      } catch (error) {
+        console.log(error, 'resize error');
+      }
+      // style.height = `${newHeight}px`;
     }
   }
 
@@ -125,6 +218,9 @@ const generate: IGenerate = node => {
    * Component: Container
    */
   if (name.includes('Container')) {
+    if (node.type === 'TEXT') {
+      return RenderTextNode(node, additionalStyle, 'div');
+    }
     return RenderContainer(node, generate, additionalStyle);
   }
 
@@ -135,44 +231,7 @@ const generate: IGenerate = node => {
     return Card(node, generate, additionalStyle);
   }
   if (name === '标题 + 描述文字') {
-    let title = '';
-    let subTitle = '';
-    let topContent = '';
-    const titleChild = children.find(
-      ({type, name, fontSize, fontName}: any) =>
-        type === 'TEXT' &&
-        (name === 'title' || (fontSize === 14 && fontName.style === 'Semibold'))
-    );
-    const subTitleChild = children.find(
-      ({type, name, fontSize, fontName}: any) =>
-        type === 'TEXT' &&
-        (name === 'subTitle' ||
-          (fontSize === 13 && fontName.style === 'Regular'))
-    );
-    const topContentChild = children.find((o: any) => o.name === 'topContent');
-    if (titleChild) {
-      title = titleChild.characters;
-    }
-    if (subTitleChild) {
-      subTitle = subTitleChild.characters;
-    }
-    if (topContentChild) {
-      topContent = `${topContentChild.children
-        .map((o: SceneNode) => generate(o))
-        .join('')}`;
-    }
-    return `<Card.Header
-      ${title ? `title="${title}"` : ''}
-      ${subTitle ? `subTitle="${subTitle}"` : ''}
-      ${
-        topContent
-          ? `topContent={
-        ${topContent}
-      }`
-          : ''
-      }
-      ${additionalStyle ? `style={{ ${additionalStyle} }}` : ''}
-    ></Card.Header>`;
+    return CardHeader(node, generate, additionalStyle);
   }
 
   /**
@@ -218,32 +277,22 @@ const generate: IGenerate = node => {
   /**
    * Component: Dialog
    */
-  if (name === '对话框' || mainComponent?.name === '对话框') {
-    let title = '';
-    const header = children.find(o => o.name === '卡片标题');
+  if (name.includes('对话框') || mainComponent?.name.includes('对话框')) {
+    return Dialog(node, generate);
+  }
 
-    if (header) {
-      const {children} = header;
-      if (children && children.children) {
-        children.children.find(o => o);
-      }
-    }
-
-    return `<Dialog
-      visible
-      onConfirm={() => {}}
-      onCancel={() => {}}
-      style={{ width: "${width}px", height: "${height}px" }}
-    >
-      ${childrenCodes}
-    </Dialog>`;
+  /**
+   * Component: FormItem
+   */
+  if (name === '表单-wrap' || mainComponent?.name === '表单-wrap') {
+    return Form(node, generate, additionalStyle);
   }
 
   /**
    * Component: FormItem
    */
   if (name === '表单' || mainComponent?.name === '表单') {
-    return FormItem(node, generate);
+    return FormItem(node, generate, additionalStyle);
   }
 
   /**
@@ -253,7 +302,7 @@ const generate: IGenerate = node => {
     node.type === 'TEXT' &&
     (name === '表单-tip' || mainComponent?.name === '表单-tip')
   ) {
-    return FormTip(node);
+    return FormTip(node, additionalStyle);
   }
 
   /**
@@ -277,7 +326,7 @@ const generate: IGenerate = node => {
    * Component: Pagination
    */
   if (name.includes('/分页器') || mainComponent?.name.includes('/分页器')) {
-    return Pagination(node);
+    return Pagination(node, additionalStyle);
   }
 
   /**
@@ -325,6 +374,20 @@ const generate: IGenerate = node => {
   }
 
   /**
+   * Component: Table
+   */
+  if (name.includes('表格-') || mainComponent?.name.includes('表格-')) {
+    return Table(node, generate, additionalStyle);
+  }
+
+  /**
+   * Component: Tabs
+   */
+  if (name.includes('导航页签') || mainComponent?.name.includes('导航页签')) {
+    return Tabs(node, additionalStyle);
+  }
+
+  /**
    * Component: TimePicker
    */
   if (
@@ -348,7 +411,7 @@ const generate: IGenerate = node => {
     ['开', '关', '禁用-开', '禁用-关'].includes(name) ||
     ['开', '关', '禁用-开', '禁用-关'].includes(mainComponent?.name)
   ) {
-    return Switch(node);
+    return Switch(node, additionalStyle);
   }
 
   /**
@@ -357,21 +420,57 @@ const generate: IGenerate = node => {
   if (node.type === 'TEXT') {
     return RenderTextNode(node, additionalStyle);
   }
+
+  if ('parent' in node && node.parent.type === 'PAGE') {
+    return `<div>${childrenCodes}</div>`;
+  }
+
+  if ('children' in node) {
+    const childGenerated = reverseArr(node.children)
+      .map(o => generate(o))
+      .join('');
+    if (childGenerated) {
+      return `<div>${childGenerated}</div>`;
+    }
+  }
 };
 
 const poll = () => {
   const selection = figma.currentPage.selection;
-  if (
-    selection.length === 1 &&
-    JSON.stringify(oldSelection) !== JSON.stringify(selection)
-  ) {
+  if (selection.length === 1) {
     figma.ui.postMessage({
       action: 'update',
       codes: (generate(selection[0]) || '').replace(/\n\s*\n/g, '\n'),
     });
-    oldSelection = JSON.parse(JSON.stringify(selection));
   }
-  setTimeout(poll, 1000);
 };
 
 poll();
+figma.on('selectionchange', poll);
+
+
+figma.ui.onmessage = (msg: {type: string}) => {
+  if (msg.type === 'order') {
+
+    const order = (n: SceneNode) => {
+      let startingIndex = 100000;
+      if ('children' in n && !n.name.includes("Container: flex")) {
+        n.children
+          .map(node => {
+            startingIndex = Math.min(startingIndex, n.children.indexOf(node));
+            return node;
+          })
+          .sort((a, b) => b.y - a.y)
+          .forEach((obj, i) => {
+            n.insertChild(startingIndex + i, obj);
+          });
+      }
+    }
+    const {selection} = figma.currentPage;
+
+    if (selection.length === 1) {
+      order(selection[0])
+      poll()
+    }
+  }
+};

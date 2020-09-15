@@ -1,5 +1,5 @@
-import {convertColorToCSS} from './utils';
-const FormTip = (node: TextNode) => {
+import {convertColorToCSS, stringifyStyle} from './utils';
+const FormTip = (node: TextNode, additionalStyle) => {
   const {characters, fills} = node;
   let intent: TIntent;
   /**
@@ -16,9 +16,12 @@ const FormTip = (node: TextNode) => {
     }
   }
 
+  delete additionalStyle.display
+
   return `
     <Form.Tip
       ${intent ? `intent="${intent}"` : ''}
+      ${Object.keys(additionalStyle).length ? `style={${stringifyStyle(additionalStyle)}}` : ""}
     >
       ${characters}
     </Form.Tip>

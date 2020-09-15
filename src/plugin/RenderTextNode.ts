@@ -5,7 +5,11 @@ import {
   stringifyStyle,
 } from './utils';
 
-const TextNode = (node: TextNode, additionalStyle: IBaseObject) => {
+const TextNode = (
+  node: TextNode,
+  additionalStyle: IBaseObject,
+  tagName: 'div' | 'span' = 'span'
+) => {
   const {
     characters,
     fontName,
@@ -98,13 +102,21 @@ const TextNode = (node: TextNode, additionalStyle: IBaseObject) => {
   });
 
   return `
-    <span
+    <${tagName}
       style={{
+        ${
+          Object.keys(additionalStyle).length
+            ? `${stringifyStyle(additionalStyle).slice(
+                1,
+                stringifyStyle(additionalStyle).length - 1
+              )},`
+            : ''
+        }
         ${styleString.join('\n')}
       }}
     >
       ${characters}
-    </span>
+    </${tagName}>
   `;
 };
 

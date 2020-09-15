@@ -1,6 +1,10 @@
-import {reverseArr} from './utils';
+import {reverseArr, stringifyStyle} from './utils';
 
-const FormItem = (node: SceneNode, generate: IGenerate) => {
+const FormItem = (
+  node: SceneNode,
+  generate: IGenerate,
+  additionalStyle: IBaseObject
+) => {
   let label = '';
   let labelHelper = '';
   let controlNode: SceneNode[];
@@ -13,6 +17,9 @@ const FormItem = (node: SceneNode, generate: IGenerate) => {
     );
     if (labelNode) {
       label = labelNode.characters;
+      if (labelNode.x > 0) {
+        additionalStyle.marginLeft = `${labelNode.x}px`;
+      }
     }
     if (helperNode) {
       labelHelper = '表单说明';
@@ -22,10 +29,21 @@ const FormItem = (node: SceneNode, generate: IGenerate) => {
     );
   }
 
+  delete additionalStyle.display;
+
+  if (!additionalStyle.marginBottom) {
+    additionalStyle.marginBottom = 0
+  }
+
   return `
     <Form.Item
       ${label ? `label="${label}"` : ''}
       ${labelHelper ? `labelHelper="${labelHelper}"` : ''}
+      ${
+        Object.keys(additionalStyle).length
+          ? `style={${stringifyStyle(additionalStyle)}}`
+          : ''
+      }
     >
       ${reverseArr(controlNode)
         .map(o => generate(o))
