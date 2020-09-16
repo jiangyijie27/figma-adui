@@ -22,6 +22,7 @@ import Table from './Table';
 import Tabs from './Tabs';
 import TimePicker from './TimePicker';
 import RenderContainer from './RenderContainer';
+import RenderRectangleNode from './RenderRectangleNode';
 import RenderTextNode from './RenderTextNode';
 import TreeSelect from './TreeSelect';
 
@@ -93,10 +94,19 @@ const generate: IGenerate = node => {
     let marginBottom = 0;
     let marginLeft = x - (node.parent.name === '卡片标题' ? 24 : 0);
     let marginRight = 'width' in parent ? parent.width - marginLeft - width : 0;
-    let children =
-      parent.name === '对话框'
-        ? parent.children.filter(o => !['卡片标题', '底栏'].includes(o.name))
-        : parent.children;
+    let children: readonly SceneNode[];
+
+    if (parent.name === '对话框') {
+      children = parent.children.filter(
+        o => !['卡片标题', '底栏'].includes(o.name)
+      );
+    } else if (parent.name === '卡片') {
+      children = parent.children.filter(
+        o => !['标题 + 描述文字'].includes(o.name)
+      );
+    } else {
+      children = parent.children;
+    }
     let index = children.findIndex(o => o.id === id);
     /**
      * 代表是第一项
@@ -115,6 +125,16 @@ const generate: IGenerate = node => {
     if (index === children.length - 1 && parent.name === '对话框') {
       const dialogHeader = parent.children.find(o => o.name === '卡片标题');
       marginTop = y - (dialogHeader ? dialogHeader.height : 0);
+    }
+
+    /**
+     * 卡片比较特殊，标题 + 描述文字下的一个元素计算 marginTop
+     */
+    if (index === children.length - 1 && parent.name === '卡片') {
+      const cardHeader = parent.children.find(
+        o => o.name === '标题 + 描述文字'
+      );
+      marginTop = y - (cardHeader ? cardHeader.height : 0);
     }
 
     /**
@@ -171,7 +191,7 @@ const generate: IGenerate = node => {
 
   if (isContainer(name)) {
     const {parent} = node;
-    if ('width' in parent && parent.name !== '表单') {
+    if ('width' in parent && !isContainer(parent.name)) {
       let newX = 0;
       let newWidth = parent.width;
       let newHeight = 0;
@@ -206,7 +226,16 @@ const generate: IGenerate = node => {
       } catch (error) {
         console.log(error, 'resize error');
       }
-      // style.height = `${newHeight}px`;
+    }
+  }
+
+  if ('children' in node && ['对话框', '卡片'].includes(node.name)) {
+    const paddingBottom =
+      node.height - node.children[0].y - node.children[0].height;
+
+    if (paddingBottom > 0) {
+      console.log(paddingBottom, 'paddingBottom');
+      style.paddingBottom = `${paddingBottom}px`;
     }
   }
 
@@ -415,6 +444,13 @@ const generate: IGenerate = node => {
   }
 
   /**
+   * RectangleNode
+   */
+  if (node.type === 'RECTANGLE') {
+    return RenderRectangleNode(node, additionalStyle);
+  }
+
+  /**
    * TextNode
    */
   if (node.type === 'TEXT') {
@@ -448,29 +484,33 @@ const poll = () => {
 poll();
 figma.on('selectionchange', poll);
 
-
 figma.ui.onmessage = (msg: {type: string}) => {
   if (msg.type === 'order') {
-
     const order = (n: SceneNode) => {
       let startingIndex = 100000;
-      if ('children' in n && !n.name.includes("Container: flex")) {
+      if ('children' in n) {
         n.children
           .map(node => {
             startingIndex = Math.min(startingIndex, n.children.indexOf(node));
             return node;
           })
-          .sort((a, b) => b.y - a.y)
+          .sort((a, b) => {
+            if (n.name.includes('Container: flex')) {
+              return b.x - a.x;
+            } else {
+              return b.y - a.y;
+            }
+          })
           .forEach((obj, i) => {
             n.insertChild(startingIndex + i, obj);
           });
       }
-    }
+    };
     const {selection} = figma.currentPage;
 
     if (selection.length === 1) {
-      order(selection[0])
-      poll()
+      order(selection[0]);
+      poll();
     }
   }
 };

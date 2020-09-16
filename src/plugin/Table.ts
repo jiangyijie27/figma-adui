@@ -17,6 +17,11 @@ const Table = (
   let headerEmphasized = false;
   let selectMultiple = null;
 
+  if (['卡片', '对话框'].includes(node.parent.name)) {
+    additionalStyle.boxShadow =
+      '0 1px 0 rgba(0, 0, 0, .08), 0 -1px 0 rgba(0, 0, 0, .08)';
+  }
+
   if ('children' in node) {
     const columnsNode = node.children.filter(
       o => !['边框', '勾选'].includes(o.name) && o.visible
@@ -44,8 +49,8 @@ const Table = (
 
       if ('children' in col) {
         const theadNode = col.children[0];
-        if (theadNode.layoutAlign === "CENTER") {
-          columnObj.align = "center"
+        if (theadNode.layoutAlign === 'CENTER') {
+          columnObj.align = 'center';
         }
         if ('children' in theadNode) {
           const theadInfoNode = theadNode.children.find(o =>
@@ -102,7 +107,11 @@ const Table = (
             dataSourceObj[`data_${index}`] = firstChild.characters;
           }
           // 单图
-          else if (children.length === 1 && 'fills' in children[0] && children[0].fills[0]) {
+          else if (
+            children.length === 1 &&
+            'fills' in children[0] &&
+            children[0].fills[0]
+          ) {
             const fills = children[0].fills as Paint[];
             if (fills.find(o => o.type === 'IMAGE')) {
               const {cornerRadius, width, height} = children[0];
@@ -111,11 +120,15 @@ const Table = (
               ] = `<img src='https://wxa.wxs.qq.com/images/preview/avatar-placeholder_40x40.png' style={{ width: '${width}px', height: '${height}px', ${
                 cornerRadius ? `borderRadius: '${cornerRadius}px'` : ''
               } }} />`;
+            } else {
+              dataSourceObj[`data_${index}`] = `<div>${reverseArr(children)
+                .map(o => generate(o))
+                .join('')}</div>`;
             }
           } else {
-            dataSourceObj[`data_${index}`] = `<React.Fragment>${reverseArr(children)
+            dataSourceObj[`data_${index}`] = `<div>${reverseArr(children)
               .map(o => generate(o))
-              .join('')}</React.Fragment>`
+              .join('')}</div>`;
           }
         }
 
@@ -130,15 +143,14 @@ const Table = (
   }));
 
   const dataSourceString = JSON.stringify(dataSource)
-  .replace(/  /g, '')
-  .replace(/\\n ?/g, ' ')
-  .replace(/\\"/g, '"')
-  .replace(/:"</g, ':<')
-  .replace(/>"/g, '>')
-  .replace(/{" "}/g, '')
-  .replace(/ ?> ?/g, '>')
-  .replace(/ ?< ?/g, '<')
-
+    .replace(/  /g, '')
+    .replace(/\\n ?/g, ' ')
+    .replace(/\\"/g, '"')
+    .replace(/:"</g, ':<')
+    .replace(/>"/g, '>')
+    .replace(/{" "}/g, '')
+    .replace(/ ?> ?/g, '>')
+    .replace(/ ?< ?/g, '<');
 
   return `<Table
     dataSource={${dataSourceString}}

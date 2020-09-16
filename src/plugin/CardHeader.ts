@@ -1,4 +1,4 @@
-import {stringifyStyle} from './utils';
+import {reverseArr, stringifyStyle} from './utils';
 const CardHeader = (
   node: SceneNode,
   generate: IGenerate,
@@ -7,6 +7,7 @@ const CardHeader = (
   let title = '';
   let subTitle = '';
   let topContent = '';
+  let childString = '';
   if ('children' in node) {
     const {children} = node;
     const titleChild = children.find(
@@ -20,22 +21,39 @@ const CardHeader = (
         (name === 'subTitle' ||
           (fontSize === 13 && fontName.style === 'Regular'))
     ) as TextNode;
-    const topContentChild = children.find((o: any) => o.name === 'topContent');
+    const topContentChild = children.find((o: any) => o.name === '卡片-top');
     if (titleChild) {
       title = titleChild.characters;
     }
     if (subTitleChild) {
       subTitle = subTitleChild.characters;
     }
-    if (topContentChild && "children" in topContentChild) {
+    if (topContentChild && 'children' in topContentChild) {
       topContent = `${topContentChild.children
         .map((o: SceneNode) => generate(o))
         .join('')}`;
     }
+
+    childString = reverseArr(
+      node.children.filter(o => {
+        return (
+          titleChild?.id !== o.id &&
+          subTitleChild?.id !== o.id &&
+          topContentChild?.id !== o.id
+        );
+      })
+    )
+      .map(o => generate(o))
+      .join('');
   }
+
+  additionalStyle.paddingLeft = 0
+
+  delete additionalStyle.display;
+
   return `<Card.Header
-      ${title ? `title="${title}"` : ''}
-      ${subTitle ? `subTitle="${subTitle}"` : ''}
+      ${title ? `title={<div style={{ paddingLeft: "24px" }}>${title}</div>}` : ''}
+      ${subTitle ? `subTitle={<div style={{ paddingLeft: "24px" }}>${subTitle}</div>}` : ''}
       ${
         topContent
           ? `topContent={
@@ -48,7 +66,16 @@ const CardHeader = (
           ? `style={${stringifyStyle(additionalStyle)}}`
           : ''
       }
-    ></Card.Header>`;
+      ${
+        childString
+          ? `
+        >
+          ${childString}
+        </Card.Header>
+      `
+          : '/>'
+      }
+  `;
 };
 
 export default CardHeader;

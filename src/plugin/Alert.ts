@@ -7,6 +7,8 @@ const Alert = (node: SceneNode, additionalStyle: IBaseObject) => {
   let text = '';
   let closable = false;
 
+  additionalStyle.width = `${node.width}px`
+
   if ('children' in node) {
     const textNode = node.children.find(o => o.type === 'TEXT') as TextNode;
     if (textNode) {

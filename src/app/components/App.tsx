@@ -88,7 +88,7 @@ class App extends React.Component {
   };
 
   render() {
-    const {codesString, codesStringOriginal} = this.state;
+    const {activeIndex, codesString, codesStringOriginal} = this.state;
 
     return (
       <div>
@@ -119,53 +119,55 @@ class App extends React.Component {
             border: '1px solid #eee',
           }}
         >
-          <JsxParser
-            ref={cpn => (this.parser = cpn)}
-            components={{
-              Affix,
-              Alert,
-              Breadcrumb,
-              Button,
-              Card,
-              Checkbox,
-              ColorPicker,
-              ConfigProvider,
-              DatePicker,
-              Dialog,
-              Drawer,
-              Form,
-              Grid,
-              Icon,
-              Input,
-              Layout,
-              Menu,
-              Message,
-              Motion,
-              Nav,
-              NumericInput,
-              Pagination,
-              Popconfirm,
-              Popover,
-              PopTrigger,
-              Radio,
-              ResizeObserver,
-              Select,
-              Slider,
-              Spinner,
-              Suggest,
-              Switch,
-              Tabs,
-              Table,
-              Tag,
-              TimePicker,
-              Tooltip,
-              TreeSelect,
-              Upload,
-            }}
-            jsx={codesStringOriginal
-              .replace(/(\r\n|\n|\r)/gm, '')
-              .replace(/\s+/g, ' ')}
-          />
+          <div style={{ transform: "scale(0.9)" }}>
+            <JsxParser
+              ref={cpn => (this.parser = cpn)}
+              components={{
+                Affix,
+                Alert,
+                Breadcrumb,
+                Button,
+                Card,
+                Checkbox,
+                ColorPicker,
+                ConfigProvider,
+                DatePicker,
+                Dialog,
+                Drawer,
+                Form,
+                Grid,
+                Icon,
+                Input,
+                Layout,
+                Menu,
+                Message,
+                Motion,
+                Nav,
+                NumericInput,
+                Pagination,
+                Popconfirm,
+                Popover,
+                PopTrigger,
+                Radio,
+                ResizeObserver,
+                Select,
+                Slider,
+                Spinner,
+                Suggest,
+                Switch,
+                Tabs,
+                Table,
+                Tag,
+                TimePicker,
+                Tooltip,
+                TreeSelect,
+                Upload,
+              }}
+              jsx={codesStringOriginal
+                .replace(/(\r\n|\n|\r)/gm, '')
+                .replace(/\s+/g, ' ')}
+            />
+          </div>
         </div>
         <div style={{marginTop: '16px', marginBottom: '8px', fontSize: '13px'}}>
           React：
