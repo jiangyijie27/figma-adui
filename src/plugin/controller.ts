@@ -11,6 +11,7 @@ import Dialog from './Dialog';
 import Form from './Form';
 import FormItem from './FormItem';
 import FormTip from './FormTip';
+import Icon from './Icon';
 import Input from './Input';
 import NumericInput from './NumericInput';
 import Pagination from './Pagination';
@@ -26,7 +27,7 @@ import RenderRectangleNode from './RenderRectangleNode';
 import RenderTextNode from './RenderTextNode';
 import TreeSelect from './TreeSelect';
 
-figma.showUI(__html__, {width: 700, height: 800});
+figma.showUI(__html__, {width: 700, height: 1200});
 
 const reverseArr = (input: readonly any[]) => {
   var ret = new Array();
@@ -234,7 +235,6 @@ const generate: IGenerate = node => {
       node.height - node.children[0].y - node.children[0].height;
 
     if (paddingBottom > 0) {
-      console.log(paddingBottom, 'paddingBottom');
       style.paddingBottom = `${paddingBottom}px`;
     }
   }
@@ -455,6 +455,13 @@ const generate: IGenerate = node => {
    */
   if (node.type === 'TEXT') {
     return RenderTextNode(node, additionalStyle);
+  }
+
+  /**
+   * Component: Icon
+   */
+  if (mainComponent?.name.includes(" / ")) {
+    return Icon(node, additionalStyle);
   }
 
   if ('parent' in node && node.parent.type === 'PAGE') {

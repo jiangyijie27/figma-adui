@@ -49,6 +49,10 @@ const CardHeader = (
 
   additionalStyle.paddingLeft = 0
 
+  if ("effects" in node && node.effects.length) {
+    additionalStyle.boxShadow = 'rgba(0, 0, 0, 0.06) 0 1px 0 0'
+  }
+
   delete additionalStyle.display;
 
   return `<Card.Header

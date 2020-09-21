@@ -15,14 +15,18 @@ const Form = (
     node.children.forEach(o => {
       if ('children' in o) {
         const label = o.children.find(p => p.name === '表单-label') as TextNode;
-        if (label && labelSize < label.characters.length) {
-          labelSize = label.characters.length;
+        const help = o.children.find(p => p.name === '反馈  / help-circle');
+        if (label) {
+          const length = label.characters.length + (help ? 1 : 0);
+          if (labelSize < length) {
+            labelSize = length;
+          }
         }
       }
     });
   }
 
-  delete additionalStyle.display
+  delete additionalStyle.display;
 
   return `
     <Form

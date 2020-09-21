@@ -1,6 +1,6 @@
 {
-  "name": "💅AD UI Generator",
-  "id": "884734001362100677",
+  "name": "AD UI Generator",
+  "id": "889805913917507178",
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html"
