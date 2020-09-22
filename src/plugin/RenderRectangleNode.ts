@@ -4,8 +4,8 @@ const RenderRectangleNode = (
   node: RectangleNode,
   additionalStyle: IBaseObject
 ) => {
-  additionalStyle.width = node.width;
-  additionalStyle.height = node.height;
+  additionalStyle.width = `${node.width}px`;
+  additionalStyle.height = `${node.height}px`;
 
   const {fills} = node;
   if (fills && Array.isArray(fills)) {

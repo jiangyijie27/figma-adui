@@ -52,6 +52,15 @@ const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
     active = true;
   }
 
+  if (
+    node.parent.name.includes('/按钮组') ||
+    ('mainComponent' in node.parent &&
+      node.parent.mainComponent?.name.includes('/按钮组'))
+  ) {
+    delete additionalStyle.display
+    delete additionalStyle.marginLeft
+  }
+
   return `<Button
     ${active ? 'active' : ''}
     ${disabled ? 'disabled' : ''}
@@ -60,7 +69,11 @@ const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
     ${rightIcon ? `rightIcon="${rightIcon}"` : ''}
     ${size ? `size="${size}"` : ''}
     ${theme ? `theme="${theme}"` : ''}
-    ${Object.keys(additionalStyle).length ? `style={${stringifyStyle(additionalStyle)}}` : ""}
+    ${
+      Object.keys(additionalStyle).length
+        ? `style={${stringifyStyle(additionalStyle)}}`
+        : ''
+    }
     ${
       buttonContent
         ? `>
