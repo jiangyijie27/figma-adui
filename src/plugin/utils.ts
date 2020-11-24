@@ -14,6 +14,90 @@ export const reverseArr: (
 };
 
 /**
+ * 获取 mainComponent，如不存在返回 null
+ * @param node SceneNode
+ * @return ComponentNode | null
+ */
+export const getMainComponent = (node: SceneNode) => {
+  if ('mainComponent' in node) {
+    return node.mainComponent;
+  }
+  return null;
+};
+
+/**
+ * 从 name 中获取 key 值
+ * name 要符合以下格式：
+ * "尺寸=小, 风格=普通, 类型=普通按钮, 状态=常态, icon=off"
+ * @param key key
+ * @param name 字符串
+ */
+export const getValueFromName = (key: string, name: string) => {
+  try {
+    const splited = name.split(`${key}=`);
+    const text = splited[1].split(',')[0];
+    let finalValue = text;
+    switch (text) {
+      case '大':
+        finalValue = 'large';
+        break;
+      case '中':
+        finalValue = 'medium';
+        break;
+      case '小':
+        finalValue = '';
+        break;
+      case '迷你':
+        finalValue = 'mini';
+        break;
+      default:
+    }
+
+    if (text.includes('主题')) {
+      finalValue = 'primary';
+    } else if (text.includes('成功')) {
+      finalValue = 'success';
+    } else if (text.includes('警示')) {
+      finalValue = 'warning';
+    } else if (text.includes('危险')) {
+      finalValue = 'danger';
+    } else if (text.includes('消息')) {
+      finalValue = 'info';
+    } else if (text.includes('普通')) {
+      finalValue = '';
+    }
+
+    if (text.includes('禁用')) {
+      finalValue = 'disabled';
+    } else if (text.includes('点击')) {
+      finalValue = 'active';
+    }
+
+    if (text.includes('轻量')) {
+      finalValue = 'light';
+    }
+
+    return finalValue;
+  } catch (error) {
+    return '';
+  }
+};
+
+/**
+ * 获取 node 的 mainComponent，然后从 name 中取 key
+ * 就是整合以下 getMainComponent 和 getValueFromName 两个方法
+ * @param key key
+ * @param node SceneNode
+ */
+export const getValueFromNode = (key: string, node: SceneNode) => {
+  const mainComponent = getMainComponent(node);
+  if (mainComponent) {
+    return getValueFromName(key, mainComponent.name);
+  }
+  return '';
+};
+
+/**
  * 将 style 对象转换成 string
  * @param style IBaseObject
  */
@@ -27,7 +111,7 @@ export const stringifyStyle = (style: IBaseObject) =>
  */
 export const getSize: (node: SceneNode) => TSize = node => {
   if (!node) {
-    return undefined
+    return undefined;
   }
   let size: TSize;
 
@@ -88,7 +172,7 @@ export const getIntent: (node: SceneNode) => TIntent = node => {
     intent = 'danger';
   } else if (name.includes('消息') || mainComponent?.name.includes('消息')) {
     intent = 'info';
-  } 
+  }
 
   return intent;
 };

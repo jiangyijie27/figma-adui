@@ -101,14 +101,21 @@ class App extends React.Component {
             fontSize: '13px',
           }}
         >
-          生成预览：
           <Button
-            intent="primary"
+            style={{marginRight: '8px'}}
             onClick={() => {
               parent.postMessage({pluginMessage: {type: 'order'}}, '*');
             }}
           >
             调整图层顺序
+          </Button>
+          <Button
+            intent="primary"
+            onClick={() => {
+              parent.postMessage({pluginMessage: {type: 'generate'}}, '*');
+            }}
+          >
+            生成代码
           </Button>
         </div>
         <div
@@ -119,7 +126,7 @@ class App extends React.Component {
             border: '1px solid #eee',
           }}
         >
-          <div style={{ transform: "scale(0.9)" }}>
+          <div style={{transform: 'scale(0.9)'}}>
             <JsxParser
               ref={cpn => (this.parser = cpn)}
               components={{
@@ -181,6 +188,11 @@ class App extends React.Component {
             fontSize: '12px!important',
           }}
           resize="vertical"
+        />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `.adui-dialog-inner { transform: scale(0.8); }`,
+          }}
         />
       </div>
     );

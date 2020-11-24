@@ -1,39 +1,47 @@
-import {
-  getDisabled,
-  getSize,
-  getIntent,
-  getTheme,
-  stringifyStyle,
-} from './utils';
+import {getValueFromNode, stringifyStyle} from './utils';
 
 const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
-  let {name} = node;
-  let mainComponent: ComponentNode;
-  let active: boolean;
-  let disabled = getDisabled(node);
-  let intent = getIntent(node);
-  let size = getSize(node);
-  let theme = getTheme(node);
+  const size = getValueFromNode('尺寸', node);
+  const theme = getValueFromNode('风格', node);
+  const intent = getValueFromNode('类型', node);
+  const active = getValueFromNode('状态', node) === 'active';
+  const disabled = getValueFromNode('状态', node) === 'disabled';
 
   let buttonContent = '';
   let leftIcon = '';
   let rightIcon = '';
 
   if ('children' in node) {
-    const {children} = node;
-    const buttonChild = children.find(o => o.name === '文字');
-    const icons = children.filter(
-      o => 'mainComponent' in o && o.mainComponent.name.includes(' / ')
-    );
-    const [leftIconChild, rightIconChild] = icons;
-    if (
-      buttonChild?.visible &&
-      'children' in buttonChild &&
-      buttonChild.children[0] &&
-      'characters' in buttonChild.children[0]
-    ) {
-      buttonContent = buttonChild.children[0].characters;
+    const children = node.children.filter(o => o.visible);
+
+    const buttonContentChild = children.find(
+      o => o.type === 'TEXT'
+    ) as TextNode;
+    if (buttonContentChild) {
+      /**
+       * 没有 icon 的情况
+       */
+      buttonContent = buttonContentChild?.characters;
+    } else {
+      /**
+       * 有 icon 的情况
+       */
+      const buttonChild = children.find(o => o.name === '文字 + 间距');
+      if (
+        buttonChild?.visible &&
+        'children' in buttonChild &&
+        buttonChild.children[0] &&
+        'characters' in buttonChild.children[0]
+      ) {
+        buttonContent = buttonChild.children[0].characters;
+      }
     }
+
+    const icons = children.filter(
+      o => 'mainComponent' in o && o.mainComponent.name.includes('/')
+    );
+
+    const [leftIconChild, rightIconChild] = icons;
 
     if (leftIconChild?.visible && 'mainComponent' in leftIconChild) {
       leftIcon = leftIconChild.mainComponent.name.split('/')[1].trim();
@@ -44,21 +52,12 @@ const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
   }
 
   if (
-    name.includes('点击') ||
-    mainComponent?.name.includes('点击') ||
-    name.includes('选中') ||
-    mainComponent?.name.includes('选中')
-  ) {
-    active = true;
-  }
-
-  if (
     node.parent.name.includes('/按钮组') ||
     ('mainComponent' in node.parent &&
       node.parent.mainComponent?.name.includes('/按钮组'))
   ) {
-    delete additionalStyle.display
-    delete additionalStyle.marginLeft
+    delete additionalStyle.display;
+    delete additionalStyle.marginLeft;
   }
 
   return `<Button

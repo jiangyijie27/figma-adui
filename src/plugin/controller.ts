@@ -15,6 +15,7 @@ import Icon from './Icon';
 import Input from './Input';
 import NumericInput from './NumericInput';
 import Pagination from './Pagination';
+import Popover from './Popover';
 import Radio from './Radio';
 import RadioGroup from './RadioGroup';
 import Select from './Select';
@@ -49,6 +50,7 @@ const isContainer = (name: string) =>
   ].includes(name);
 
 const generate: IGenerate = node => {
+  let returnString = '';
   if (!node || !node.visible) {
     return '';
   }
@@ -248,234 +250,213 @@ const generate: IGenerate = node => {
    */
   if (name.includes('Container')) {
     if (node.type === 'TEXT') {
-      return RenderTextNode(node, additionalStyle, 'div');
+      returnString = RenderTextNode(node, additionalStyle, 'div');
+    } else {
+      returnString = RenderContainer(node, generate, additionalStyle);
     }
-    return RenderContainer(node, generate, additionalStyle);
-  }
-
-  /**
-   * Component: Card
-   */
-  if (name === '卡片' || mainComponent?.name === '卡片') {
-    return Card(node, generate, additionalStyle);
-  }
-  if (name === '标题 + 描述文字') {
-    return CardHeader(node, generate, additionalStyle);
-  }
-
-  /**
-   * Component: Alert
-   */
-  if (name.includes('提醒') || mainComponent?.name.includes('提醒')) {
-    return Alert(node, additionalStyle);
-  }
-
-  /**
-   * Component: Button.Group
-   */
-  if (name.includes('/按钮组') || mainComponent?.name.includes('/按钮组')) {
-    return ButtonGroup(node, generate, additionalStyle);
-  }
-
-  /**
-   * Component: Button
-   */
-  if (
-    name.includes('按钮') ||
-    mainComponent?.name.includes('按钮') ||
-    name === '尾部按钮' ||
-    name === '头部按钮'
+  } else if (name === '卡片' || mainComponent?.name === '卡片') {
+    /**
+     * Component: Card
+     */
+    returnString = Card(node, generate, additionalStyle);
+  } else if (name === '标题 + 描述文字') {
+    returnString = CardHeader(node, generate, additionalStyle);
+  } else if (name.includes('提醒') || mainComponent?.name.includes('提醒')) {
+    /**
+     * Component: Alert
+     */
+    returnString = Alert(node, additionalStyle);
+  } else if (
+    /**
+     * Component: Button.Group
+     */
+    name.includes('/按钮组') ||
+    mainComponent?.name.includes('/按钮组')
   ) {
-    return Button(node, additionalStyle);
-  }
-
-  /**
-   * Component: Checkbox
-   */
-  if (name.includes('勾选/') || mainComponent?.name.includes('勾选/')) {
-    return Checkbox(node);
-  }
-
-  /**
-   * Component: CheckboxGroup
-   */
-  if (name.includes('勾选组') || mainComponent?.name.includes('勾选组')) {
-    return CheckboxGroup(node, generate, additionalStyle);
-  }
-
-  /**
-   * Component: Dialog
-   */
-  if (name.includes('对话框') || mainComponent?.name.includes('对话框')) {
-    return Dialog(node, generate);
-  }
-
-  /**
-   * Component: FormItem
-   */
-  if (name === '表单-wrap' || mainComponent?.name === '表单-wrap') {
-    return Form(node, generate, additionalStyle);
-  }
-
-  /**
-   * Component: FormItem
-   */
-  if (name === '表单' || mainComponent?.name === '表单') {
-    return FormItem(node, generate, additionalStyle);
-  }
-
-  /**
-   * Component: FormTip
-   */
-  if (
+    returnString = ButtonGroup(node, generate, additionalStyle);
+  } else if (
+    /**
+     * Component: Button
+     * 不允许 detach
+     */
+    mainComponent?.parent?.name === '按钮'
+  ) {
+    returnString = Button(node, additionalStyle);
+  } else if (name.includes('勾选/') || mainComponent?.name.includes('勾选/')) {
+    /**
+     * Component: Checkbox
+     */
+    returnString = Checkbox(node);
+  } else if (
+    /**
+     * Component: CheckboxGroup
+     */
+    name.includes('勾选组') ||
+    mainComponent?.name.includes('勾选组')
+  ) {
+    returnString = CheckboxGroup(node, generate, additionalStyle);
+  } else if (
+    /**
+     * Component: Dialog
+     */
+    name.includes('对话框') ||
+    mainComponent?.name.includes('对话框')
+  ) {
+    returnString = Dialog(node, generate);
+  } else if (name === '表单-wrap' || mainComponent?.name === '表单-wrap') {
+    /**
+     * Component: FormItem
+     */
+    returnString = Form(node, generate, additionalStyle);
+  } else if (name === '表单' || mainComponent?.name === '表单') {
+    /**
+     * Component: FormItem
+     */
+    returnString = FormItem(node, generate, additionalStyle);
+  } else if (
+    /**
+     * Component: FormTip
+     */
     node.type === 'TEXT' &&
     (name === '表单-tip' || mainComponent?.name === '表单-tip')
   ) {
-    return FormTip(node, additionalStyle);
-  }
-
-  /**
-   * Component: Input
-   */
-  if (name.includes('输入框/') || mainComponent?.name.includes('输入框/')) {
-    return Input(node, generate, additionalStyle);
-  }
-
-  /**
-   * Component: NumericInput
-   */
-  if (
+    returnString = FormTip(node, additionalStyle);
+  } else if (
+    /**
+     * Component: Input
+     */
+    name.includes('输入框/') ||
+    mainComponent?.name.includes('输入框/')
+  ) {
+    returnString = Input(node, generate, additionalStyle);
+  } else if (
+    /**
+     * Component: NumericInput
+     */
     name.includes('数字输入框') ||
     mainComponent?.name.includes('数字输入框')
   ) {
-    return NumericInput(node, additionalStyle);
-  }
-
-  /**
-   * Component: Pagination
-   */
-  if (name.includes('/分页器') || mainComponent?.name.includes('/分页器')) {
-    return Pagination(node, additionalStyle);
-  }
-
-  /**
-   * Component: Radio
-   */
-  if (name.includes('单选/') || mainComponent?.name.includes('单选/')) {
-    return Radio(node);
-  }
-
-  /**
-   * Component: RadioGroup
-   */
-  if (name.includes('单选组') || mainComponent?.name.includes('单选组')) {
-    return RadioGroup(node, generate, additionalStyle);
-  }
-
-  /**
-   * Component: ColorPicker
-   */
-  if (
+    returnString = NumericInput(node, additionalStyle);
+  } else if (
+    /**
+     * Component: Pagination
+     */
+    name.includes('/分页器') ||
+    mainComponent?.name.includes('/分页器')
+  ) {
+    returnString = Pagination(node, additionalStyle);
+  } else if (name.includes('单选/') || mainComponent?.name.includes('单选/')) {
+    /**
+     * Component: Radio
+     */
+    returnString = Radio(node);
+  } else if (
+    /**
+     * Component: RadioGroup
+     */
+    name.includes('单选组') ||
+    mainComponent?.name.includes('单选组')
+  ) {
+    returnString = RadioGroup(node, generate, additionalStyle);
+  } else if (
+    /**
+     * Component: ColorPicker
+     */
     name.includes('颜色选择器') ||
     mainComponent?.name.includes('颜色选择器')
   ) {
-    return ColorPicker(node, additionalStyle);
-  }
-
-  /**
-   * Component: DatePicker DatePicker.RangePicker
-   */
-  if (
+    returnString = ColorPicker(node, additionalStyle);
+  } else if (
+    /**
+     * Component: DatePicker DatePicker.RangePicker
+     */
     name.includes('日期选择器') ||
     mainComponent?.name.includes('日期选择器')
   ) {
-    return DatePicker(node, additionalStyle);
-  }
-
-  /**
-   * Component: TreeSelect
-   */
-  if (
+    returnString = DatePicker(node, additionalStyle);
+  } else if (
+    /**
+     * Component: TreeSelect
+     */
     name.includes('树形选择器') ||
     mainComponent?.name.includes('树形选择器')
   ) {
-    return TreeSelect(node, additionalStyle);
-  }
-
-  /**
-   * Component: Table
-   */
-  if (name.includes('表格-') || mainComponent?.name.includes('表格-')) {
-    return Table(node, generate, additionalStyle);
-  }
-
-  /**
-   * Component: Tabs
-   */
-  if (name.includes('导航页签') || mainComponent?.name.includes('导航页签')) {
-    return Tabs(node, additionalStyle);
-  }
-
-  /**
-   * Component: TimePicker
-   */
-  if (
+    returnString = TreeSelect(node, additionalStyle);
+  } else if (name.includes('表格-') || mainComponent?.name.includes('表格-')) {
+    /**
+     * Component: Table
+     */
+    returnString = Table(node, generate, additionalStyle);
+  } else if (
+    /**
+     * Component: Tabs
+     */
+    name.includes('导航页签') ||
+    mainComponent?.name.includes('导航页签')
+  ) {
+    returnString = Tabs(node, additionalStyle);
+  } else if (
+    /**
+     * Component: TimePicker
+     */
     name.includes('时间选择器') ||
     mainComponent?.name.includes('时间选择器')
   ) {
-    return TimePicker(node, additionalStyle);
-  }
-
-  /**
-   * Component: Select
-   */
-  if (name.includes('选择器') || mainComponent?.name.includes('选择器')) {
-    return Select(node, additionalStyle);
-  }
-
-  /**
-   * Component: Switch
-   */
-  if (
+    returnString = TimePicker(node, additionalStyle);
+  } else if (
+    /**
+     * Component: Select
+     */
+    name.includes('选择器') ||
+    mainComponent?.name.includes('选择器')
+  ) {
+    returnString = Select(node, additionalStyle);
+  } else if (
+    /**
+     * Component: Switch
+     */
     ['开', '关', '禁用-开', '禁用-关'].includes(name) ||
     ['开', '关', '禁用-开', '禁用-关'].includes(mainComponent?.name)
   ) {
-    return Switch(node, additionalStyle);
-  }
-
-  /**
-   * RectangleNode
-   */
-  if (node.type === 'RECTANGLE') {
-    return RenderRectangleNode(node, additionalStyle);
-  }
-
-  /**
-   * TextNode
-   */
-  if (node.type === 'TEXT') {
-    return RenderTextNode(node, additionalStyle);
-  }
-
-  /**
-   * Component: Icon
-   */
-  if (mainComponent?.name.includes(" / ")) {
-    return Icon(node, additionalStyle);
-  }
-
-  if ('parent' in node && node.parent.type === 'PAGE') {
-    return `<div>${childrenCodes}</div>`;
-  }
-
-  if ('children' in node) {
+    returnString = Switch(node, additionalStyle);
+  } else if (node.type === 'RECTANGLE') {
+    /**
+     * RectangleNode
+     */
+    returnString = RenderRectangleNode(node, additionalStyle);
+  } else if (node.type === 'TEXT') {
+    /**
+     * TextNode
+     */
+    returnString = RenderTextNode(node, additionalStyle);
+  } else if (mainComponent?.name.includes(' / ')) {
+    /**
+     * Component: Icon
+     */
+    returnString = Icon(node, additionalStyle);
+  } else if ('parent' in node && node.parent.type === 'PAGE') {
+    returnString = `<div>${childrenCodes}</div>`;
+  } else if ('children' in node) {
     const childGenerated = reverseArr(node.children)
       .map(o => generate(o))
       .join('');
     if (childGenerated) {
-      return `<div>${childGenerated}</div>`;
+      returnString = `<div>${childGenerated}</div>`;
     }
   }
+
+  /**
+   * Component: Popover
+   */
+  if ('parent' in node) {
+    const {parent} = node;
+    const popoverNode = parent.children.find(o => o.name.includes('Popover'));
+    if (!name.includes('Popover') && popoverNode) {
+      returnString = Popover(popoverNode, returnString);
+    }
+  }
+
+  return returnString;
 };
 
 const poll = () => {
@@ -519,5 +500,9 @@ figma.ui.onmessage = (msg: {type: string}) => {
       order(selection[0]);
       poll();
     }
+  }
+  
+  if (msg.type === 'generate') {
+    poll();
   }
 };
