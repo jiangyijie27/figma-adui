@@ -6,11 +6,19 @@ const Dialog = (node: SceneNode, generate: IGenerate) => {
   let headerContent = [];
   let headerStyle: IBaseObject = {};
   let childrenNodes = '';
+  let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
+  if ('layoutMode' in node) {
+    layoutMode = node.layoutMode;
+  }
 
   if ('children' in node) {
     const {children} = node;
-    childrenNodes = reverseArr(
-      children.filter(o => !['卡片标题', '底栏'].includes(o.name))
+    const childrenFiltered = children.filter(
+      o => !['卡片标题', '底栏'].includes(o.name)
+    );
+    childrenNodes = (layoutMode === 'NONE'
+      ? reverseArr(childrenFiltered)
+      : childrenFiltered
     )
       .map(o => generate(o))
       .join('');

@@ -1,35 +1,21 @@
-import {getSize, stringifyStyle} from './utils';
+import {getValueFromNode, stringifyStyle} from './utils';
 
-const CheckboxGroup = (node: SceneNode, generate: IGenerate, additionalStyle: IBaseObject) => {
-  let size: TSize;
+const RadioGroup = (
+  node: SceneNode,
+  generate: IGenerate,
+  additionalStyle: IBaseObject
+) => {
+  const size = getValueFromNode('尺寸', node);
   let childrenString = '';
 
   if ('children' in node) {
-    const {children} = node;
-    let mainComponent: ComponentNode;
-    if ('mainComponent' in node) {
-      mainComponent = node.mainComponent;
-    }
-    const checkboxes = children.filter(
+    const radios = node.children.filter(
       o =>
-        (o.name.includes('选项') ||
-          o.name.includes('勾选/') ||
-          mainComponent?.name.includes('勾选/')) &&
+        // @ts-ignore
+        ['勾选', '勾选状态'].includes(o.mainComponent?.parent?.name) &&
         o.visible
     );
-    childrenString = checkboxes.map(o => generate(o)).join('');
-
-    if (checkboxes.length) {
-      const firstCheckbox = checkboxes[0];
-      if ('children' in firstCheckbox) {
-        const radioTextNode = firstCheckbox.children.find(
-          o => o.type === 'TEXT'
-        ) as TextNode;
-        if (radioTextNode) {
-          size = getSize(radioTextNode);
-        }
-      }
-    }
+    childrenString = radios.map(o => generate(o)).join('');
   }
 
   return `
@@ -46,4 +32,4 @@ const CheckboxGroup = (node: SceneNode, generate: IGenerate, additionalStyle: IB
   `;
 };
 
-export default CheckboxGroup;
+export default RadioGroup;

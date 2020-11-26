@@ -1,5 +1,4 @@
 import {
-  reverseArr,
   getChecked,
   getDisabled,
   getSize,

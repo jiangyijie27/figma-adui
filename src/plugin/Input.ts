@@ -1,25 +1,21 @@
-import {
-  getDisabled,
-  getSize,
-  getIntent,
-  getTheme,
-  stringifyStyle,
-} from './utils';
+import {getValueFromNode, stringifyStyle} from './utils';
 
 const Input = (
   node: SceneNode,
   generate: IGenerate,
   additionalStyle: IBaseObject
 ) => {
-  additionalStyle.width = `${node.width}px`
+  additionalStyle.width = `${node.width}px`;
   let leftElement: string;
   let rightElement: string;
   let limit: number;
   let placeholder: string;
-  let disabled = getDisabled(node);
-  let intent = getIntent(node);
-  let size = getSize(node);
-  let theme = getTheme(node);
+
+  const size = getValueFromNode('尺寸', node);
+  const theme = getValueFromNode('风格', node);
+  const intent = getValueFromNode('类型', node);
+  const disabled = getValueFromNode('状态', node) === '禁用';
+  const limited = getValueFromNode('字数限制', node) === 'on';
 
   if ('children' in node) {
     const children = node.children;

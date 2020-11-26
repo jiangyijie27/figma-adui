@@ -67,12 +67,6 @@ export const getValueFromName = (key: string, name: string) => {
       finalValue = '';
     }
 
-    if (text.includes('禁用')) {
-      finalValue = 'disabled';
-    } else if (text.includes('点击')) {
-      finalValue = 'active';
-    }
-
     if (text.includes('轻量')) {
       finalValue = 'light';
     }
@@ -95,6 +89,62 @@ export const getValueFromNode = (key: string, node: SceneNode) => {
     return getValueFromName(key, mainComponent.name);
   }
   return '';
+};
+
+/**
+ * 返回 Node 的 padding 值，string
+ * @param node SceneNode
+ */
+export const getPadding = (node: SceneNode) => {
+  const style = {
+    paddingTop: '0',
+    paddingRight: '0',
+    paddingBottom: '0',
+    paddingLeft: '0',
+  };
+  if ('paddingTop' in node) {
+    const {paddingTop} = node;
+    if (paddingTop) {
+      style.paddingTop = `${paddingTop}px`;
+    }
+  }
+  if ('paddingRight' in node) {
+    const {paddingRight} = node;
+    if (paddingRight) {
+      style.paddingRight = `${paddingRight}px`;
+    }
+  }
+  if ('paddingBottom' in node) {
+    const {paddingBottom} = node;
+    if (paddingBottom) {
+      style.paddingBottom = `${paddingBottom}px`;
+    }
+  }
+  if ('paddingLeft' in node) {
+    const {paddingLeft} = node;
+    if (paddingLeft) {
+      style.paddingLeft = `${paddingLeft}px`;
+    }
+  }
+
+  /**
+   * 简写
+   */
+  if (new Set(Object.values(style)).size === 1) {
+    /**
+     * 相同
+     */
+    if (style.paddingTop !== '0') {
+      return style.paddingTop;
+    }
+  } else if (
+    style.paddingTop === style.paddingBottom &&
+    style.paddingRight === style.paddingLeft
+  ) {
+    return `${style.paddingTop} ${style.paddingRight}`;
+  } else if (style.paddingRight === style.paddingLeft) {
+    return `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom}`;
+  }
 };
 
 /**

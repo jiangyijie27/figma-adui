@@ -4,11 +4,18 @@ const Form = (
   generate: IGenerate,
   additionalStyle: IBaseObject
 ) => {
+  let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
+  if ('layoutMode' in node) {
+    layoutMode = node.layoutMode;
+  }
   let childrenNodes = '';
   let labelSize = 0;
 
   if ('children' in node) {
-    childrenNodes = reverseArr(node.children)
+    childrenNodes = (layoutMode === 'NONE'
+      ? reverseArr(node.children)
+      : node.children
+    )
       .map(o => generate(o))
       .join('');
 

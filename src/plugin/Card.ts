@@ -5,11 +5,18 @@ const Card = (
   generate: IGenerate,
   additionalStyle: IBaseObject
 ) => {
+  let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
+  if ('layoutMode' in node) {
+    layoutMode = node.layoutMode;
+  }
   let size: TSize;
   let childrenNodes = '';
 
   if ('children' in node) {
-    childrenNodes = reverseArr(node.children)
+    childrenNodes = (layoutMode === 'NONE'
+      ? reverseArr(node.children)
+      : node.children
+    )
       .map(o => generate(o))
       .join('');
   }

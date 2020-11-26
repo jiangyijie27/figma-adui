@@ -1,27 +1,7 @@
-import {stringifyStyle} from './utils';
+import {getValueFromNode, stringifyStyle} from './utils';
 
 const ColorPicker = (node: SceneNode, additionalStyle: IBaseObject) => {
-  let size: TSize;
-
-  if ('children' in node) {
-    const selector = node.children.find(o => o.name.includes('颜色选择器-'));
-    if (selector) {
-      const sizeText = selector.name.split("-")[1]
-      switch (sizeText) {
-        case '大':
-          size = 'large';
-          break;
-        case '中':
-          size = 'medium';
-          break;
-        case '迷你':
-          size = 'mini';
-          break;
-        default:
-      }
-    }
-  }
-
+  const size = getValueFromNode('尺寸', node);
   return `
     <ColorPicker
       ${size ? `size="${size}"` : ''}

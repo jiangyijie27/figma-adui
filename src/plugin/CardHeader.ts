@@ -29,9 +29,7 @@ const CardHeader = (
       subTitle = subTitleChild.characters;
     }
     if (topContentChild && 'children' in topContentChild) {
-      topContent = `${topContentChild.children
-        .map((o: SceneNode) => generate(o))
-        .join('')}`;
+      topContent = generate(topContentChild);
     }
 
     childString = reverseArr(
@@ -47,17 +45,25 @@ const CardHeader = (
       .join('');
   }
 
-  additionalStyle.paddingLeft = 0
+  additionalStyle.paddingLeft = 0;
 
-  if ("effects" in node && node.effects.length) {
-    additionalStyle.boxShadow = 'rgba(0, 0, 0, 0.06) 0 1px 0 0'
+  if ('effects' in node && node.effects.length) {
+    additionalStyle.boxShadow = 'rgba(0, 0, 0, 0.06) 0 1px 0 0';
   }
 
   delete additionalStyle.display;
 
   return `<Card.Header
-      ${title ? `title={<div style={{ paddingLeft: "24px" }}>${title}</div>}` : ''}
-      ${subTitle ? `subTitle={<div style={{ paddingLeft: "24px" }}>${subTitle}</div>}` : ''}
+      ${
+        title
+          ? `title={<div style={{ paddingLeft: "24px" }}>${title}</div>}`
+          : ''
+      }
+      ${
+        subTitle
+          ? `subTitle={<div style={{ paddingLeft: "24px" }}>${subTitle}</div>}`
+          : ''
+      }
       ${
         topContent
           ? `topContent={

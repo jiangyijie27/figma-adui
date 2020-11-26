@@ -29,7 +29,7 @@ const Icon = (node: SceneNode, additionalStyle: IBaseObject) => {
     color = convertColorToCSS(children[0].fills[0]);
   }
 
-  const name = mainComponent?.name.split(' / ')[1];
+  const name = mainComponent?.name.split('/')[1];
 
   delete additionalStyle.display;
 

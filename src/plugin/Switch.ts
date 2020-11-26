@@ -1,32 +1,26 @@
-import {getDisabled, stringifyStyle} from './utils';
+import {getValueFromNode, stringifyStyle} from './utils';
 
 const Switch = (node: SceneNode, additionalStyle: IBaseObject) => {
-  let mainComponent: ComponentNode;
-  if ('mainComponent' in node) {
-    mainComponent = node.mainComponent;
+  const size = getValueFromNode('尺寸', node);
+  const status = getValueFromNode('状态', node);
+  let checked = false;
+  let disabled = false;
+  switch (status) {
+    case '开':
+      checked = true;
+      break;
+    case '关-禁用':
+      disabled = true;
+      break;
+    case '开-禁用':
+      checked = true;
+      disabled = true;
+      break;
+    default:
   }
-  let size: TSize;
-  const checked =
-    node.name.includes('开') || mainComponent?.name.includes('开');
+
   let text = '';
-  let disabled = getDisabled(node);
-
   if ('children' in node) {
-    const name = node.children.find(o => o.name.includes('/'))?.name;
-    const [sizeText] = name.split('/');
-    switch (sizeText) {
-      case '大':
-        size = 'large';
-        break;
-      case '中':
-        size = 'medium';
-        break;
-      case '迷你':
-        size = 'mini';
-        break;
-      default:
-    }
-
     const textNode = node.children.find(o => o.type === 'TEXT') as TextNode;
     if (textNode?.visible) {
       text = textNode.characters;

@@ -1,39 +1,21 @@
-import {getSize, stringifyStyle} from './utils';
+import {getValueFromNode, stringifyStyle} from './utils';
 
 const RadioGroup = (
   node: SceneNode,
   generate: IGenerate,
   additionalStyle: IBaseObject
 ) => {
-  let size: TSize;
+  const size = getValueFromNode('尺寸', node);
   let childrenString = '';
 
   if ('children' in node) {
-    const {children} = node;
-    let mainComponent: ComponentNode;
-    if ('mainComponent' in node) {
-      mainComponent = node.mainComponent;
-    }
-    const radios = children.filter(
+    const radios = node.children.filter(
       o =>
-        (o.name.includes('选项') ||
-          o.name.includes('单选/') ||
-          mainComponent?.name.includes('单选/')) &&
+        // @ts-ignore
+        ['单选', '单选状态'].includes(o.mainComponent?.parent?.name) &&
         o.visible
     );
     childrenString = radios.map(o => generate(o)).join('');
-
-    if (radios.length) {
-      const firstRadio = radios[0];
-      if ('children' in firstRadio) {
-        const radioTextNode = firstRadio.children.find(
-          o => o.type === 'TEXT'
-        ) as TextNode;
-        if (radioTextNode) {
-          size = getSize(radioTextNode);
-        }
-      }
-    }
   }
 
   return `

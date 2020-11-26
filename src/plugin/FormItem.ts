@@ -5,6 +5,10 @@ const FormItem = (
   generate: IGenerate,
   additionalStyle: IBaseObject
 ) => {
+  let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
+  if ('layoutMode' in node) {
+    layoutMode = node.layoutMode;
+  }
   let label = '';
   let labelHelper = '';
   let controlNode: SceneNode[];
@@ -32,7 +36,7 @@ const FormItem = (
   delete additionalStyle.display;
 
   if (!additionalStyle.marginBottom) {
-    additionalStyle.marginBottom = 0
+    additionalStyle.marginBottom = 0;
   }
 
   return `
@@ -45,7 +49,7 @@ const FormItem = (
           : ''
       }
     >
-      ${reverseArr(controlNode)
+      ${(layoutMode === 'NONE' ? reverseArr(controlNode) : controlNode)
         .map(o => generate(o))
         .join('')}
     </Form.Item>

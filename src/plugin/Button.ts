@@ -4,8 +4,8 @@ const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
   const size = getValueFromNode('尺寸', node);
   const theme = getValueFromNode('风格', node);
   const intent = getValueFromNode('类型', node);
-  const active = getValueFromNode('状态', node) === 'active';
-  const disabled = getValueFromNode('状态', node) === 'disabled';
+  const active = getValueFromNode('状态', node) === '点击';
+  const disabled = getValueFromNode('状态', node) === '禁用';
 
   let buttonContent = '';
   let leftIcon = '';
@@ -52,9 +52,8 @@ const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
   }
 
   if (
-    node.parent.name.includes('/按钮组') ||
-    ('mainComponent' in node.parent &&
-      node.parent.mainComponent?.name.includes('/按钮组'))
+    // @ts-ignore
+    node?.parent?.mainComponent?.parent?.name === '按钮组'
   ) {
     delete additionalStyle.display;
     delete additionalStyle.marginLeft;

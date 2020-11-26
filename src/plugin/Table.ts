@@ -11,6 +11,10 @@ const Table = (
   generate: IGenerate,
   additionalStyle: IBaseObject
 ) => {
+  let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
+  if ('layoutMode' in node) {
+    layoutMode = node.layoutMode;
+  }
   let rowCount = 0;
   const columns: IBaseObject[] = [];
   const dataSourceObj: IBaseObject = {};
@@ -121,12 +125,18 @@ const Table = (
                 cornerRadius ? `borderRadius: '${cornerRadius}px'` : ''
               } }} />`;
             } else {
-              dataSourceObj[`data_${index}`] = `<div>${reverseArr(children)
+              dataSourceObj[`data_${index}`] = `<div>${(layoutMode === 'NONE'
+                ? reverseArr(children)
+                : children
+              )
                 .map(o => generate(o))
                 .join('')}</div>`;
             }
           } else {
-            dataSourceObj[`data_${index}`] = `<div>${reverseArr(children)
+            dataSourceObj[`data_${index}`] = `<div>${(layoutMode === 'NONE'
+              ? reverseArr(children)
+              : children
+            )
               .map(o => generate(o))
               .join('')}</div>`;
           }

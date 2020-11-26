@@ -76,8 +76,10 @@ class App extends React.Component {
 
     window.addEventListener('click', e => {
       if (
-        [...e.target.classList].includes('adui-dialog-close') ||
-        [...e.target.parentNode?.classList].includes('adui-dialog-close')
+        [...(e.target?.classList || [])].includes('adui-dialog-close') ||
+        [...(e.target.parentNode?.classList || [])].includes(
+          'adui-dialog-close'
+        )
       ) {
         const dialog = document.getElementsByClassName(
           'adui-dialog-wrapper'
