@@ -4,7 +4,15 @@ const RenderFlex = (
   generate: IGenerate,
   additionalStyle: IBaseObject
 ) => {
+  let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
+  if ('layoutMode' in node) {
+    layoutMode = node.layoutMode;
+  }
   additionalStyle.display = 'flex';
+
+  if (layoutMode === 'VERTICAL') {
+    additionalStyle.flexDirection = 'column';
+  }
 
   /**
    * 主轴
@@ -47,56 +55,6 @@ const RenderFlex = (
         break;
       default:
     }
-  }
-
-  const style = {
-    paddingTop: '0',
-    paddingRight: '0',
-    paddingBottom: '0',
-    paddingLeft: '0',
-  };
-  if ('paddingTop' in node) {
-    const {paddingTop} = node;
-    if (paddingTop) {
-      style.paddingTop = `${paddingTop}px`;
-    }
-  }
-  if ('paddingRight' in node) {
-    const {paddingRight} = node;
-    if (paddingRight) {
-      style.paddingRight = `${paddingRight}px`;
-    }
-  }
-  if ('paddingBottom' in node) {
-    const {paddingBottom} = node;
-    if (paddingBottom) {
-      style.paddingBottom = `${paddingBottom}px`;
-    }
-  }
-  if ('paddingLeft' in node) {
-    const {paddingLeft} = node;
-    if (paddingLeft) {
-      style.paddingLeft = `${paddingLeft}px`;
-    }
-  }
-
-  /**
-   * 简写
-   */
-  if (new Set(Object.values(style)).size === 1) {
-    /**
-     * 相同
-     */
-    if (style.paddingTop !== '0') {
-      additionalStyle.padding = style.paddingTop;
-    }
-  } else if (
-    style.paddingTop === style.paddingBottom &&
-    style.paddingRight === style.paddingLeft
-  ) {
-    additionalStyle.padding = `${style.paddingTop} ${style.paddingRight}`;
-  } else if (style.paddingRight === style.paddingLeft) {
-    additionalStyle.padding = `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom}`;
   }
 
   /**

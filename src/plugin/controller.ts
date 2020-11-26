@@ -254,19 +254,15 @@ const generate: IGenerate = node => {
   //   additionalStyle = {...additionalStyle, ...style};
   // }
 
-  /**
-   * Component: Container
-   */
-  if (name.includes('Container')) {
-    if (node.type === 'TEXT') {
-      returnString = RenderTextNode(node, additionalStyle, 'div');
-    } else {
-      returnString = RenderContainer(node, generate, additionalStyle);
-    }
-  } else if (name === '卡片' || mainComponent?.name === '卡片') {
+  if (name === '卡片' || mainComponent?.name === '卡片') {
     /**
      * Component: Card
+     * 作为容器，additionalStyle 会加入自身默认没有的 padding
      */
+    const padding = getPadding(node);
+    if (padding) {
+      additionalStyle.padding = padding;
+    }
     returnString = Card(node, generate, additionalStyle);
   } else if (name === '标题 + 描述文字') {
     returnString = CardHeader(node, generate, additionalStyle);
@@ -280,7 +276,12 @@ const generate: IGenerate = node => {
      * Component: Button.Group
      * 名称：按钮组
      * 不允许 detach
+     * 作为容器，additionalStyle 会加入自身默认没有的 padding
      */
+    const padding = getPadding(node);
+    if (padding) {
+      additionalStyle.padding = padding;
+    }
     returnString = ButtonGroup(node, generate, additionalStyle);
   } else if (
     mainComponent?.parent?.name === '按钮' ||
@@ -304,7 +305,12 @@ const generate: IGenerate = node => {
      * Component: Checkbox.Group
      * 名称：勾选组
      * 不允许 detach
+     * 作为容器，additionalStyle 会加入自身默认没有的 padding
      */
+    const padding = getPadding(node);
+    if (padding) {
+      additionalStyle.padding = padding;
+    }
     returnString = CheckboxGroup(node, generate, additionalStyle);
   } else if (
     /**
@@ -317,7 +323,7 @@ const generate: IGenerate = node => {
   } else if (name === '表单-wrap' || mainComponent?.name === '表单-wrap') {
     /**
      * Component: Form
-     * Form 作为容器，additionalStyle 会加入自身默认没有的 padding
+     * 作为容器，additionalStyle 会加入自身默认没有的 padding
      */
     const padding = getPadding(node);
     if (padding) {
@@ -327,7 +333,12 @@ const generate: IGenerate = node => {
   } else if (name === '表单' || mainComponent?.name === '表单') {
     /**
      * Component: FormItem
+     * 作为容器，additionalStyle 会加入自身默认没有的 padding
      */
+    const padding = getPadding(node);
+    if (padding) {
+      additionalStyle.padding = padding;
+    }
     returnString = FormItem(node, generate, additionalStyle);
   } else if (
     /**
@@ -358,10 +369,15 @@ const generate: IGenerate = node => {
   } else if (
     /**
      * Component: Pagination
+     * 作为容器，additionalStyle 会加入自身默认没有的 padding
      */
     name.includes('/分页器') ||
     mainComponent?.name.includes('/分页器')
   ) {
+    const padding = getPadding(node);
+    if (padding) {
+      additionalStyle.padding = padding;
+    }
     returnString = Pagination(node, additionalStyle);
   } else if (['单选', '单选状态'].includes(mainComponent?.parent?.name)) {
     /**
@@ -375,7 +391,12 @@ const generate: IGenerate = node => {
      * Component: Radio.Group
      * 名称：单选组
      * 不允许 detach
+     * 作为容器，additionalStyle 会加入自身默认没有的 padding
      */
+    const padding = getPadding(node);
+    if (padding) {
+      additionalStyle.padding = padding;
+    }
     returnString = RadioGroup(node, generate, additionalStyle);
   } else if (mainComponent?.parent?.name.includes('颜色选择器')) {
     /**
@@ -450,7 +471,7 @@ const generate: IGenerate = node => {
      * Component: Icon
      */
     returnString = Icon(node, additionalStyle);
-  } else if (layoutMode === 'HORIZONTAL') {
+  } else if (['HORIZONTAL', 'VERTICAL'].includes(layoutMode)) {
     /**
      * Component: Flex
      */
@@ -494,7 +515,7 @@ const poll = () => {
 };
 
 poll();
-figma.on('selectionchange', poll);
+// figma.on('selectionchange', poll);
 
 figma.ui.onmessage = (msg: {type: string}) => {
   if (msg.type === 'order') {

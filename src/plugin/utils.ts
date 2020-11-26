@@ -145,6 +145,7 @@ export const getPadding = (node: SceneNode) => {
   } else if (style.paddingRight === style.paddingLeft) {
     return `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom}`;
   }
+  return `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom} ${style.paddingLeft}`;
 };
 
 /**
