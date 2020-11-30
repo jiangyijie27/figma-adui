@@ -1,9 +1,13 @@
-import {reverseArr, stringifyStyle} from './utils';
+import {getPadding, reverseArr, stringifyStyle} from './utils';
 const CardHeader = (
   node: SceneNode,
   generate: IGenerate,
   additionalStyle: IBaseObject
 ) => {
+  let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
+  if ('layoutMode' in node) {
+    layoutMode = node.layoutMode;
+  }
   let title = '';
   let subTitle = '';
   let topContent = '';
@@ -32,38 +36,31 @@ const CardHeader = (
       topContent = generate(topContentChild);
     }
 
-    childString = reverseArr(
-      node.children.filter(o => {
-        return (
-          titleChild?.id !== o.id &&
-          subTitleChild?.id !== o.id &&
-          topContentChild?.id !== o.id
-        );
-      })
-    )
+    const childs = node.children.filter(o => {
+      return (
+        titleChild?.id !== o.id &&
+        subTitleChild?.id !== o.id &&
+        topContentChild?.id !== o.id
+      );
+    });
+
+    childString = (layoutMode === "NONE" ? reverseArr(childs) : childs)
       .map(o => generate(o))
       .join('');
   }
 
-  additionalStyle.paddingLeft = 0;
+  const padding = getPadding(node);
+  if (padding !== '16px 16px 20px 24px') {
+    additionalStyle.padding = padding;
+  }
 
   if ('effects' in node && node.effects.length) {
     additionalStyle.boxShadow = 'rgba(0, 0, 0, 0.06) 0 1px 0 0';
   }
 
-  delete additionalStyle.display;
-
   return `<Card.Header
-      ${
-        title
-          ? `title={<div style={{ paddingLeft: "24px" }}>${title}</div>}`
-          : ''
-      }
-      ${
-        subTitle
-          ? `subTitle={<div style={{ paddingLeft: "24px" }}>${subTitle}</div>}`
-          : ''
-      }
+      ${title ? `title="${title}"` : ''}
+      ${subTitle ? `subTitle="${subTitle}"` : ''}
       ${
         topContent
           ? `topContent={

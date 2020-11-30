@@ -31,15 +31,15 @@ const Icon = (node: SceneNode, additionalStyle: IBaseObject) => {
 
   const name = mainComponent?.name.split('/')[1];
 
-  delete additionalStyle.display;
-
   if (!name) {
     return '';
   }
 
+  console.log(name.trim(), "yijie")
+
   return `
     <Icon
-      icon="${name}"
+      icon="${name.trim()}"
       ${width !== 18 ? `size={${width}}` : ''}
       ${color ? `color="${color}"` : ''}
       ${

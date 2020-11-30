@@ -1,12 +1,20 @@
-import {stringifyStyle} from './utils';
+import {getPadding, stringifyStyle} from './utils';
 const RenderFlex = (
   node: SceneNode,
   generate: IGenerate,
   additionalStyle: IBaseObject
 ) => {
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
+  let layoutGrow: 0 | 1;
   if ('layoutMode' in node) {
     layoutMode = node.layoutMode;
+  }
+  if ('layoutGrow' in node) {
+    const {layoutGrow: lg} = node;
+    layoutGrow = lg;
+  }
+  if (layoutGrow === 1) {
+    additionalStyle.flex = 1 
   }
   additionalStyle.display = 'flex';
 
@@ -57,14 +65,27 @@ const RenderFlex = (
     }
   }
 
+  const padding = getPadding(node);
+  if (padding) {
+    additionalStyle.padding = padding;
+  }
+
   /**
    * 主轴是否固定尺寸
    * 横向表示 width 固定；纵向表示 height 固定
    */
   if ('primaryAxisSizingMode' in node) {
-    const {primaryAxisSizingMode} = node;
-    if (primaryAxisSizingMode === 'FIXED') {
-      additionalStyle.width = `${node.width}px`;
+    const {primaryAxisSizingMode, layoutAlign, width, height} = node;
+    if (
+      primaryAxisSizingMode === 'FIXED' &&
+      layoutAlign !== 'STRETCH' &&
+      layoutGrow !== 1
+    ) {
+      if (layoutMode === 'VERTICAL') {
+        additionalStyle.height = `${height}px`;
+      } else {
+        additionalStyle.width = `${width}px`;
+      }
     }
   }
 
@@ -73,16 +94,30 @@ const RenderFlex = (
    * 横向表示 height 固定；纵向表示 width 固定
    */
   if ('counterAxisSizingMode' in node) {
-    const {counterAxisSizingMode} = node;
-    if (counterAxisSizingMode === 'FIXED') {
-      additionalStyle.height = `${node.height}px`;
+    const {counterAxisSizingMode, layoutAlign, width, height} = node;
+    if (
+      counterAxisSizingMode === 'FIXED' &&
+      layoutAlign !== 'STRETCH' &&
+      layoutGrow !== 1
+    ) {
+      if (layoutMode === 'VERTICAL') {
+        additionalStyle.width = `${width}px`;
+      } else {
+        additionalStyle.height = `${height}px`;
+      }
     }
   }
 
   let childrenNodes = '';
 
   if ('children' in node) {
-    childrenNodes = node.children.map(o => generate(o)).join('');
+    if (layoutMode === 'VERTICAL') {
+      childrenNodes = `<div>${node.children
+        .map(o => generate(o))
+        .join('</div><div>')}</div>`;
+    } else {
+      childrenNodes = node.children.map(o => generate(o)).join('');
+    }
   }
 
   return `

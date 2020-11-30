@@ -11,17 +11,22 @@ const FormTip = (node: TextNode, additionalStyle) => {
     fills.length === 1 &&
     fills[0].type === 'SOLID'
   ) {
-    if (convertColorToCSS(fills[0]) !== '#a3a3a3') {
+    if (
+      convertColorToCSS(fills[0]) !== '#a3a3a3' &&
+      convertColorToCSS(fills[0]) !== '#6b6b6b'
+    ) {
       intent = 'danger';
     }
   }
 
-  delete additionalStyle.display
-
   return `
     <Form.Tip
       ${intent ? `intent="${intent}"` : ''}
-      ${Object.keys(additionalStyle).length ? `style={${stringifyStyle(additionalStyle)}}` : ""}
+      ${
+        Object.keys(additionalStyle).length
+          ? `style={${stringifyStyle(additionalStyle)}}`
+          : ''
+      }
     >
       ${characters}
     </Form.Tip>

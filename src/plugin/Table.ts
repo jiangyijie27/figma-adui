@@ -1,10 +1,4 @@
-import {
-  reverseArr,
-  getChecked,
-  getDisabled,
-  getSize,
-  stringifyStyle,
-} from './utils';
+import {reverseArr, stringifyStyle} from './utils';
 
 const Table = (
   node: SceneNode,
@@ -166,6 +160,13 @@ const Table = (
     dataSource={${dataSourceString}}
     verticalAlign="center"
     columns={${JSON.stringify(columns)}}
+    getHeadCellStyle={(col, colIndex) =>
+      !colIndex && { paddingLeft: "24px" }
+    }
+    getCellStyle={(row, col, rowIndex, colIndex) =>
+      !colIndex && { paddingLeft: "24px" }
+    }
+    style={{ boxShadow: "0 1px 0 rgba(0, 0, 0, .08), 0 -1px 0 rgba(0, 0, 0, .08)" }}
     ${headerEmphasized ? 'headerEmphasized' : ''}
     ${
       Object.keys(additionalStyle).length

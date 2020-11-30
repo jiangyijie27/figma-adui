@@ -10,6 +10,8 @@ const TextNode = (
   additionalStyle: IBaseObject,
   tagName: 'div' | 'span' = 'span'
 ) => {
+  additionalStyle.display = 'inline-block';
+
   const {
     characters,
     fontName,

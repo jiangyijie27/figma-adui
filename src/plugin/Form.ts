@@ -22,7 +22,7 @@ const Form = (
     node.children.forEach(o => {
       if ('children' in o) {
         const label = o.children.find(p => p.name === '表单-label') as TextNode;
-        const help = o.children.find(p => p.name === '反馈  / help-circle');
+        const help = o.children.find(p => p.name === '反馈/help-circle');
         if (label) {
           const length = label.characters.length + (help ? 1 : 0);
           if (labelSize < length) {
@@ -32,8 +32,6 @@ const Form = (
       }
     });
   }
-
-  delete additionalStyle.display;
 
   return `
     <Form

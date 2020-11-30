@@ -41,7 +41,18 @@ const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
       o => 'mainComponent' in o && o.mainComponent.name.includes('/')
     );
 
-    const [leftIconChild, rightIconChild] = icons;
+    let leftIconChild: SceneNode;
+    let rightIconChild: SceneNode;
+
+    if (icons.length > 1) {
+      [leftIconChild, rightIconChild] = icons;
+    } else if (icons.length === 1) {
+      if (node.children.findIndex(o => o.id === icons[0].id) === 0) {
+        [leftIconChild] = icons
+      } else {
+        [rightIconChild] = icons
+      }
+    }
 
     if (leftIconChild?.visible && 'mainComponent' in leftIconChild) {
       leftIcon = leftIconChild.mainComponent.name.split('/')[1].trim();
@@ -49,14 +60,6 @@ const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
     if (rightIconChild?.visible && 'mainComponent' in rightIconChild) {
       rightIcon = rightIconChild.mainComponent.name.split('/')[1].trim();
     }
-  }
-
-  if (
-    // @ts-ignore
-    node?.parent?.mainComponent?.parent?.name === '按钮组'
-  ) {
-    delete additionalStyle.display;
-    delete additionalStyle.marginLeft;
   }
 
   return `<Button

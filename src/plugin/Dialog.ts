@@ -1,10 +1,12 @@
-import {reverseArr, getTheme, stringifyStyle} from './utils';
+import {reverseArr, stringifyStyle} from './utils';
 
 const Dialog = (node: SceneNode, generate: IGenerate) => {
-  const {width, height} = node;
+  const {width} = node;
   let title = '';
   let headerContent = [];
-  let headerStyle: IBaseObject = {};
+  let headerStyle: React.CSSProperties = {
+    paddingBottom: 0,
+  };
   let childrenNodes = '';
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   if ('layoutMode' in node) {
@@ -36,24 +38,13 @@ const Dialog = (node: SceneNode, generate: IGenerate) => {
     if (header && 'children' in header) {
       const {children} = header;
       headerContent = children.filter(
-        o => o.name !== '对话框-title' && o.name !== '编辑 / cancel'
+        o => o.name !== '对话框-title' && o.name !== '编辑/cancel'
       );
       const titleNode = children.find(
         o => o.name === '对话框-title'
       ) as TextNode;
       if (titleNode?.characters) {
         title = titleNode.characters;
-      }
-    }
-
-    // 判断 headerStyle 的 paddingBottom
-    if (headerContent.length) {
-      // 注意倒序情况下 0 实际是最后一项
-      const paddingBottom =
-        header.height - headerContent[0].y - headerContent[0].height;
-      // 默认 16
-      if (paddingBottom !== 16) {
-        headerStyle.paddingBottom = `${Math.max(paddingBottom, 0)}px`;
       }
     }
   }
@@ -63,7 +54,7 @@ const Dialog = (node: SceneNode, generate: IGenerate) => {
       onConfirm={() => {}}
       onCancel={() => {}}
       ${title ? `title="${title}"` : ''}
-      style={{ width: "${width}px", height: "${height}px" }}
+      style={{ width: "${width}px" }}
       ${
         Object.keys(headerStyle).length
           ? `headerStyle={${stringifyStyle(headerStyle)}}`

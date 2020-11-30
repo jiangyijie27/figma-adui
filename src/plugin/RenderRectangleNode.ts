@@ -4,7 +4,14 @@ const RenderRectangleNode = (
   node: RectangleNode,
   additionalStyle: IBaseObject
 ) => {
-  additionalStyle.width = `${node.width}px`;
+  let layoutAlign = '';
+  if ('layoutAlign' in node) {
+    const {layoutAlign: la} = node;
+    layoutAlign = la;
+  }
+  if (layoutAlign !== 'STRETCH') {
+    additionalStyle.width = `${node.width}px`;
+  }
   additionalStyle.height = `${node.height}px`;
 
   const {fills} = node;

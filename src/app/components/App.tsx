@@ -53,6 +53,7 @@ class App extends React.Component {
   state = {
     codesStringOriginal: '',
     codesString: '',
+    zoom: 1,
   };
 
   componentDidMount = () => {
@@ -73,7 +74,6 @@ class App extends React.Component {
         this.setState({codesString: codes, codesStringOriginal: codes});
       }
     };
-
     window.addEventListener('click', e => {
       if (
         [...(e.target?.classList || [])].includes('adui-dialog-close') ||
@@ -90,7 +90,7 @@ class App extends React.Component {
   };
 
   render() {
-    const {activeIndex, codesString, codesStringOriginal} = this.state;
+    const {activeIndex, codesString, codesStringOriginal, zoom} = this.state;
 
     return (
       <div>
@@ -104,14 +104,29 @@ class App extends React.Component {
           }}
         >
           <Button
+            size="mini"
             style={{marginRight: '8px'}}
             onClick={() => {
               parent.postMessage({pluginMessage: {type: 'order'}}, '*');
             }}
           >
-            调整图层顺序
+            复制代码
           </Button>
+          <Button.Group size="mini">
+            {[0.25, 0.5, 1].map(o => (
+              <Button
+                key={o}
+                active={zoom === o}
+                onClick={() => {
+                  this.setState({zoom: o});
+                }}
+              >
+                {o}x
+              </Button>
+            ))}
+          </Button.Group>
           <Button
+            size="mini"
             intent="primary"
             onClick={() => {
               parent.postMessage({pluginMessage: {type: 'generate'}}, '*');
@@ -122,13 +137,14 @@ class App extends React.Component {
         </div>
         <div
           style={{
-            padding: '8px',
+            padding: '40px',
             overflow: 'auto',
             resize: 'both',
+            backgroundColor: '#e5e5e5',
             border: '1px solid #eee',
           }}
         >
-          <div style={{transform: 'scale(0.9)'}}>
+          <div style={{zoom}}>
             <JsxParser
               ref={cpn => (this.parser = cpn)}
               components={{
@@ -193,7 +209,7 @@ class App extends React.Component {
         />
         <style
           dangerouslySetInnerHTML={{
-            __html: `.adui-dialog-inner { transform: scale(0.8); }`,
+            __html: `.adui-dialog-inner { transform: scale(${zoom}); }`,
           }}
         />
       </div>

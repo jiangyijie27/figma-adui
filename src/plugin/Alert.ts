@@ -7,15 +7,16 @@ const Alert = (node: SceneNode, additionalStyle: IBaseObject) => {
   let text = '';
   let closable = false;
 
-  additionalStyle.width = `${node.width}px`
+  additionalStyle.width = `${node.width}px`;
 
   if ('children' in node) {
-    const textNode = node.children.find(o => o.type === 'TEXT') as TextNode;
+    const textNode = node.children.find(o => o.name === 'Text');
     if (textNode) {
-      text = textNode.characters;
+      // @ts-ignore
+      text = textNode.children[0].characters;
     }
 
-    const closeNode = node.children.find(o => o.name === '编辑 / cancel');
+    const closeNode = node.children.find(o => o.name === '编辑/cancel');
     if (closeNode?.visible) {
       closable = true;
     }

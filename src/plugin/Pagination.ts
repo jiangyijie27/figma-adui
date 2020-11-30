@@ -1,8 +1,8 @@
-import {getSize, stringifyStyle} from './utils';
+import {getValueFromNode, stringifyStyle} from './utils';
 
 const Pagination = (node: SceneNode, additionalStyle: IBaseObject) => {
   const {name} = node;
-  const size = getSize(node);
+  const size = getValueFromNode("尺寸", node);
   let showButtonJumper = true;
   let showInputJumper = false;
   let theme: TTheme = null;
@@ -31,18 +31,6 @@ const Pagination = (node: SceneNode, additionalStyle: IBaseObject) => {
       showInputJumper = true;
     }
   }
-
-  // 如果离父级左边的距离比离右边的距离大，则判断为 align="right"
-  if ('width' in node.parent && node.x > node.parent.width - node.x - node.width) {
-    align = 'right';
-    const paddingRight = node.parent.width - node.x - node.width;
-    if (paddingRight > 0) {
-      additionalStyle.paddingRight = `${paddingRight}px`;
-    }
-  }
-
-  delete additionalStyle.display;
-  delete additionalStyle.marginLeft;
 
   return `
     <Pagination

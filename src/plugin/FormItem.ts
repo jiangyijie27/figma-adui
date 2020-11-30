@@ -17,7 +17,7 @@ const FormItem = (
       o => o.name === '表单-label'
     ) as TextNode;
     const helperNode = node.children.find(
-      o => o.name === '反馈  / help-circle'
+      o => o.name === '反馈/help-circle'
     );
     if (labelNode) {
       label = labelNode.characters;
@@ -29,11 +29,9 @@ const FormItem = (
       labelHelper = '表单说明';
     }
     controlNode = node.children.filter(
-      o => !['表单-label', '反馈  / help-circle'].includes(o.name)
+      o => !['表单-label', '反馈/help-circle'].includes(o.name)
     );
   }
-
-  delete additionalStyle.display;
 
   if (!additionalStyle.marginBottom) {
     additionalStyle.marginBottom = 0;

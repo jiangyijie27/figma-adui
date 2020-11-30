@@ -137,12 +137,15 @@ export const getPadding = (node: SceneNode) => {
     if (style.paddingTop !== '0') {
       return style.paddingTop;
     }
-  } else if (
+    return '';
+  }
+  if (
     style.paddingTop === style.paddingBottom &&
     style.paddingRight === style.paddingLeft
   ) {
     return `${style.paddingTop} ${style.paddingRight}`;
-  } else if (style.paddingRight === style.paddingLeft) {
+  }
+  if (style.paddingRight === style.paddingLeft) {
     return `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom}`;
   }
   return `${style.paddingTop} ${style.paddingRight} ${style.paddingBottom} ${style.paddingLeft}`;
@@ -154,50 +157,6 @@ export const getPadding = (node: SceneNode) => {
  */
 export const stringifyStyle = (style: IBaseObject) =>
   JSON.stringify(style).replace(/"([^"]+)":/g, '$1:');
-
-/**
- * 返回 size
- * @param node: SceneNode
- * @return TSize
- */
-export const getSize: (node: SceneNode) => TSize = node => {
-  if (!node) {
-    return undefined;
-  }
-  let size: TSize;
-
-  if (node.type === 'TEXT') {
-    const {fontSize} = node;
-    switch (fontSize) {
-      case 16:
-        size = 'large';
-        break;
-      case 14:
-        size = 'medium';
-        break;
-      case 12:
-        size = 'mini';
-        break;
-      default:
-    }
-  } else {
-    const {height} = node;
-    switch (height) {
-      case 42:
-        size = 'large';
-        break;
-      case 36:
-        size = 'medium';
-        break;
-      case 26:
-        size = 'mini';
-        break;
-      default:
-    }
-  }
-
-  return size;
-};
 
 /**
  * 返回 intent
@@ -226,39 +185,6 @@ export const getIntent: (node: SceneNode) => TIntent = node => {
   }
 
   return intent;
-};
-
-/**
- * 返回 checked
- * @param node: SceneNode
- * @return boolean
- */
-export const getChecked: (node: SceneNode) => boolean = node => {
-  const {name} = node;
-  let mainComponent: ComponentNode;
-  if ('mainComponent' in node) {
-    mainComponent = node.mainComponent;
-  }
-
-  return (
-    !(name.includes('未选中') || mainComponent?.name.includes('未选中')) &&
-    (name.includes('选中') || mainComponent?.name.includes('选中'))
-  );
-};
-
-/**
- * 返回 disabled
- * @param node: SceneNode
- * @return boolean
- */
-export const getDisabled: (node: SceneNode) => boolean = node => {
-  const {name} = node;
-  let mainComponent: ComponentNode;
-  if ('mainComponent' in node) {
-    mainComponent = node.mainComponent;
-  }
-
-  return name.includes('禁用') || mainComponent?.name.includes('禁用');
 };
 
 /**
