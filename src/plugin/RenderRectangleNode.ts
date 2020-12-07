@@ -10,9 +10,9 @@ const RenderRectangleNode = (
     layoutAlign = la;
   }
   if (layoutAlign !== 'STRETCH') {
-    additionalStyle.width = `${node.width}px`;
+    additionalStyle.width = `${Math.round(node.width)}px`;
   }
-  additionalStyle.height = `${node.height}px`;
+  additionalStyle.height = `${Math.round(node.height)}px`;
 
   const {fills} = node;
   if (fills && Array.isArray(fills)) {

@@ -1,4 +1,9 @@
-import {getPadding, stringifyStyle} from './utils';
+import {
+  getPadding,
+  stringifyStyle,
+  convertNumToPx,
+  convertColorToCSS,
+} from './utils';
 const RenderFlex = (
   node: SceneNode,
   generate: IGenerate,
@@ -14,7 +19,7 @@ const RenderFlex = (
     layoutGrow = lg;
   }
   if (layoutGrow === 1) {
-    additionalStyle.flex = 1 
+    additionalStyle.flex = 1;
   }
   additionalStyle.display = 'flex';
 
@@ -82,9 +87,9 @@ const RenderFlex = (
       layoutGrow !== 1
     ) {
       if (layoutMode === 'VERTICAL') {
-        additionalStyle.height = `${height}px`;
+        additionalStyle.height = `${Math.round(height)}px`;
       } else {
-        additionalStyle.width = `${width}px`;
+        additionalStyle.width = `${Math.round(width)}px`;
       }
     }
   }
@@ -101,10 +106,67 @@ const RenderFlex = (
       layoutGrow !== 1
     ) {
       if (layoutMode === 'VERTICAL') {
-        additionalStyle.width = `${width}px`;
+        additionalStyle.width = `${Math.round(width)}px`;
       } else {
-        additionalStyle.height = `${height}px`;
+        additionalStyle.height = `${Math.round(height)}px`;
       }
+    }
+  }
+
+  /**
+   * background
+   */
+  if ('fills' in node) {
+    const {fills} = node;
+    if (fills && Array.isArray(fills)) {
+      // 最简单的情况，纯色背景
+      if (fills.length === 1) {
+        additionalStyle.background = convertColorToCSS(fills[0]);
+      } else if (fills.length > 1) {
+        const c = fills.map((fill, index) =>
+          convertColorToCSS(fill, {
+            gradient: index > 0 && fill.type === 'SOLID',
+          })
+        );
+
+        additionalStyle.background = c
+          .filter(o => o)
+          .reverse()
+          .join(', ');
+      }
+    }
+  }
+
+  /**
+   * Radius
+   */
+  const {
+    // @ts-ignore
+    bottomLeftRadius,
+    // @ts-ignore
+    bottomRightRadius,
+    // @ts-ignore
+    cornerRadius,
+    // @ts-ignore
+    topLeftRadius,
+    // @ts-ignore
+    topRightRadius,
+  } = node;
+
+  // 如果四个 radius 不同，则 cornerRadius 会是 symbol
+  if (typeof cornerRadius === 'number' && cornerRadius !== 0) {
+    additionalStyle.borderRadius = convertNumToPx(cornerRadius);
+    additionalStyle.overflow = 'hidden';
+  } else {
+    const rad = `${convertNumToPx(topLeftRadius)} ${convertNumToPx(
+      topRightRadius
+    )} ${convertNumToPx(bottomRightRadius)} ${convertNumToPx(
+      bottomLeftRadius
+    )}`;
+
+    if (rad !== '0 0 0 0') {
+      additionalStyle.borderRadius = rad;
+      additionalStyle.overflow = 'hidden';
     }
   }
 

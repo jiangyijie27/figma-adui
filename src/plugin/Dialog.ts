@@ -67,7 +67,7 @@ const Dialog = (node: SceneNode, generate: IGenerate) => {
             .join('')}   
         ${headerContent.length > 1 ? '</div>' : ''}
       }
-      bodyStyle={{ padding: "0 0 16px 0" }}
+      bodyStyle={{ padding: 0 }}
     >
       ${childrenNodes}
     </Dialog>`;

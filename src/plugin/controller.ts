@@ -343,7 +343,7 @@ const poll = () => {
   }
 };
 
-// poll();
+poll();
 // figma.on('selectionchange', poll);
 
 figma.ui.onmessage = (msg: {type: string}) => {

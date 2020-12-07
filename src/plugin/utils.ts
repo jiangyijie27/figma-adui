@@ -208,8 +208,8 @@ export const getTheme: (node: SceneNode) => TTheme = node => {
  * add px after number, return 0 if 0
  * @param num
  */
-export const convertNumToPx = (num: number) => {
-  return num !== 0 ? `${num}px` : num;
+export const convertNumToPx = (num: number): string => {
+  return num !== 0 ? `${num}px` : `${num}`;
 };
 
 interface IGradientTransformData {

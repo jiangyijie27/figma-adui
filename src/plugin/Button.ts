@@ -4,7 +4,7 @@ const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
   const size = getValueFromNode('尺寸', node);
   const theme = getValueFromNode('风格', node);
   const intent = getValueFromNode('类型', node);
-  const active = getValueFromNode('状态', node) === '点击';
+  const active = ['点击', '选中'].includes(getValueFromNode('状态', node));
   const disabled = getValueFromNode('状态', node) === '禁用';
 
   let buttonContent = '';
@@ -48,9 +48,9 @@ const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
       [leftIconChild, rightIconChild] = icons;
     } else if (icons.length === 1) {
       if (node.children.findIndex(o => o.id === icons[0].id) === 0) {
-        [leftIconChild] = icons
+        [leftIconChild] = icons;
       } else {
-        [rightIconChild] = icons
+        [rightIconChild] = icons;
       }
     }
 
