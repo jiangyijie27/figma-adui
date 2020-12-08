@@ -24,6 +24,7 @@ import Table from './Table';
 import Tabs from './Tabs';
 import TimePicker from './TimePicker';
 import RenderRectangleNode from './RenderRectangleNode';
+import RenderLineNode from './RenderLineNode';
 import RenderTextNode from './RenderTextNode';
 import RenderFlex from './RenderFlex';
 import TreeSelect from './TreeSelect';
@@ -272,7 +273,13 @@ const generate: IGenerate = node => {
      * RectangleNode
      */
     returnString = RenderRectangleNode(node, additionalStyle);
-  } else if (node.type === 'TEXT') {
+  } else if (node.type === 'LINE') {
+    /**
+     * RectangleNode
+     */
+    returnString = RenderLineNode(node, additionalStyle);
+  }
+  else if (node.type === 'TEXT') {
     /**
      * TextNode
      */

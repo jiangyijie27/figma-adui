@@ -123,7 +123,10 @@ const RenderFlex = (
     if (fills && Array.isArray(fills)) {
       // 最简单的情况，纯色背景
       if (fills.length === 1) {
-        additionalStyle.background = convertColorToCSS(fills[0]);
+        additionalStyle.background = convertColorToCSS(fills[0], {
+          width: node.width,
+          height: node.height,
+        });
       } else if (fills.length > 1) {
         const c = fills.map((fill, index) =>
           convertColorToCSS(fill, {
@@ -137,6 +140,23 @@ const RenderFlex = (
           .join(', ');
       }
     }
+
+  /**
+   * strokes
+   */
+  let strokes: any;
+  if ('strokes' in node) {
+    strokes = node.strokes;
+  }
+  let strokeWeight: any;
+  if ('strokeWeight' in node) {
+    strokeWeight = node.strokeWeight;
+  }
+
+  if (strokes && strokes.length === 1 && strokes[0].type === 'SOLID') {
+    additionalStyle.border = `${strokeWeight}px solid ${convertColorToCSS(
+      strokes[0]
+    )}`;
   }
 
   /**
@@ -183,43 +203,46 @@ const RenderFlex = (
         (type !== 'TEXT' && o.type === 'INNER_SHADOW')
     ) as ShadowEffect[];
     if (shadows.length) {
-      const shadowsStr = shadows.map(
-        (o) => {
-          const {color, offset, radius, spread, visible, type} = o
+      const shadowsStr = shadows.map(o => {
+        const {color, offset, radius, spread, visible, type} = o;
 
-          let colorVal = '';
-          if (!visible) {
-            return '';
-          }
-          if (color.a === 1) {
-            colorVal = rgbToHex(color);
-          } else {
-            colorVal = `rgba(${Math.round(color.r * 255)}, ${Math.round(
-              color.g * 255
-            )}, ${Math.round(color.b * 255)}, ${Number(color.a.toFixed(2))})`;
-          }
-          return `${type === 'INNER_SHADOW' ? 'inset ' : ''}${convertNumToPx(
-            offset.x
-          )} ${convertNumToPx(offset.y)} ${convertNumToPx(radius)} ${convertNumToPx(spread)} ${colorVal}`;
+        let colorVal = '';
+        if (!visible) {
+          return '';
         }
-      );
+        if (color.a === 1) {
+          colorVal = rgbToHex(color);
+        } else {
+          colorVal = `rgba(${Math.round(color.r * 255)}, ${Math.round(
+            color.g * 255
+          )}, ${Math.round(color.b * 255)}, ${Number(color.a.toFixed(2))})`;
+        }
+        return `${type === 'INNER_SHADOW' ? 'inset ' : ''}${convertNumToPx(
+          offset.x
+        )} ${convertNumToPx(offset.y)} ${convertNumToPx(
+          radius
+        )} ${convertNumToPx(spread)} ${colorVal}`;
+      });
 
       if (type === 'TEXT') {
-        additionalStyle.textShadow = shadowsStr.filter(o => o).join(', ')
+        additionalStyle.textShadow = shadowsStr.filter(o => o).join(', ');
       } else {
-        additionalStyle.boxShadow = shadowsStr.filter(o => o).join(', ')
+        additionalStyle.boxShadow = shadowsStr.filter(o => o).join(', ');
       }
     }
   }
 
-  if (additionalStyle.background === "" || additionalStyle.background === "url()") {
-    delete additionalStyle.background
+  if (
+    additionalStyle.background === '' ||
+    additionalStyle.background === 'url()'
+  ) {
+    delete additionalStyle.background;
   }
-  if (additionalStyle.boxShadow === "") {
-    delete additionalStyle.boxShadow
+  if (additionalStyle.boxShadow === '') {
+    delete additionalStyle.boxShadow;
   }
-  if (additionalStyle.borderRadius === "") {
-    delete additionalStyle.borderRadius
+  if (additionalStyle.borderRadius === '') {
+    delete additionalStyle.borderRadius;
   }
 
   let childrenNodes = '';

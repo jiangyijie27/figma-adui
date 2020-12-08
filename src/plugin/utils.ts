@@ -283,7 +283,7 @@ export const toCamelCase = (str: string) => {
 
 export const convertColorToCSS = (
   paint: Paint,
-  options?: {gradient?: boolean}
+  options?: {gradient?: boolean; width?: number; height?: number}
 ) => {
   if (paint.visible === false) {
     return '';
@@ -306,7 +306,11 @@ export const convertColorToCSS = (
     return returnVal;
   } else if (type === 'IMAGE') {
     // if img return url(), figma does this as well
-    return 'url()';
+    return `url(https://source.unsplash.com/random/${
+      options.width && options.height
+        ? `${options.width}x${options.height}`
+        : ''
+    }?nature)`;
   } else if (type === 'GRADIENT_LINEAR') {
     // if linear gradient
     const {gradientTransform, gradientStops} = paint as GradientPaint;

@@ -49,6 +49,14 @@ const Dialog = (node: SceneNode, generate: IGenerate) => {
     }
   }
 
+  const headerContentStr = `
+  ${headerContent.length > 1 ? '<div>' : ''}
+  ${reverseArr(headerContent)
+    .map(o => generate(o))
+    .join('')}   
+  ${headerContent.length > 1 ? '</div>' : ''}
+  `;
+
   return `<Dialog
       visible
       onConfirm={() => {}}
@@ -60,13 +68,7 @@ const Dialog = (node: SceneNode, generate: IGenerate) => {
           ? `headerStyle={${stringifyStyle(headerStyle)}}`
           : ''
       }
-      headerContent={
-        ${headerContent.length > 1 ? '<div>' : ''}
-          ${reverseArr(headerContent)
-            .map(o => generate(o))
-            .join('')}   
-        ${headerContent.length > 1 ? '</div>' : ''}
-      }
+      ${headerContentStr.trim() ? `headerContent={${headerContentStr}}` : ''}
       bodyStyle={{ padding: 0 }}
     >
       ${childrenNodes}

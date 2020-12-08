@@ -67,7 +67,7 @@ const Input = (
       'characters' in limitNode.children[0]
     ) {
       const texts = limitNode.children[0].characters.split('/');
-      limit = parseInt(texts[1].trim() || texts[0].trim(), 10);
+      limit = parseInt(texts[1]?.trim() || texts[0]?.trim(), 10);
     }
   }
 
