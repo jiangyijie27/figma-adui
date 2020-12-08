@@ -3,12 +3,14 @@ import {
   stringifyStyle,
   convertNumToPx,
   convertColorToCSS,
+  rgbToHex,
 } from './utils';
 const RenderFlex = (
   node: SceneNode,
   generate: IGenerate,
   additionalStyle: IBaseObject
 ) => {
+  const {type} = node;
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   let layoutGrow: 0 | 1;
   if ('layoutMode' in node) {
@@ -168,6 +170,56 @@ const RenderFlex = (
       additionalStyle.borderRadius = rad;
       additionalStyle.overflow = 'hidden';
     }
+  }
+
+  /**
+   * boxShadow
+   */
+  if ('effects' in node) {
+    const {effects} = node;
+    const shadows = effects.filter(
+      o =>
+        o.type === 'DROP_SHADOW' ||
+        (type !== 'TEXT' && o.type === 'INNER_SHADOW')
+    ) as ShadowEffect[];
+    if (shadows.length) {
+      const shadowsStr = shadows.map(
+        (o) => {
+          const {color, offset, radius, spread, visible, type} = o
+
+          let colorVal = '';
+          if (!visible) {
+            return '';
+          }
+          if (color.a === 1) {
+            colorVal = rgbToHex(color);
+          } else {
+            colorVal = `rgba(${Math.round(color.r * 255)}, ${Math.round(
+              color.g * 255
+            )}, ${Math.round(color.b * 255)}, ${Number(color.a.toFixed(2))})`;
+          }
+          return `${type === 'INNER_SHADOW' ? 'inset ' : ''}${convertNumToPx(
+            offset.x
+          )} ${convertNumToPx(offset.y)} ${convertNumToPx(radius)} ${convertNumToPx(spread)} ${colorVal}`;
+        }
+      );
+
+      if (type === 'TEXT') {
+        additionalStyle.textShadow = shadowsStr.filter(o => o).join(', ')
+      } else {
+        additionalStyle.boxShadow = shadowsStr.filter(o => o).join(', ')
+      }
+    }
+  }
+
+  if (additionalStyle.background === "" || additionalStyle.background === "url()") {
+    delete additionalStyle.background
+  }
+  if (additionalStyle.boxShadow === "") {
+    delete additionalStyle.boxShadow
+  }
+  if (additionalStyle.borderRadius === "") {
+    delete additionalStyle.borderRadius
   }
 
   let childrenNodes = '';

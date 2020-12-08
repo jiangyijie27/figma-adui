@@ -112,7 +112,14 @@ const Table = (
           ) {
             const fills = children[0].fills as Paint[];
             if (fills.find(o => o.type === 'IMAGE')) {
-              const {cornerRadius, width, height} = children[0];
+              const {width, height} = children[0];
+              let cornerRadius = 0;
+              if (
+                'cornerRadius' in children[0] &&
+                typeof children[0].cornerRadius === 'number'
+              ) {
+                cornerRadius = children[0].cornerRadius;
+              }
               dataSourceObj[
                 `data_${index}`
               ] = `<img src='https://wxa.wxs.qq.com/images/preview/avatar-placeholder_40x40.png' style={{ width: '${width}px', height: '${height}px', ${

@@ -31,8 +31,11 @@ const Card = (
   if (
     layoutGrow !== 1 &&
     (layoutMode === 'VERTICAL'
-      ? node.counterAxisSizingMode === 'FIXED'
-      : node.primaryAxisSizingMode === 'FIXED') &&
+      ? // @ts-ignore
+        node.counterAxisSizingMode === 'FIXED'
+      : // @ts-ignore
+        node.primaryAxisSizingMode === 'FIXED') &&
+    // @ts-ignore
     ['HORIZONTAL', 'VERTICAL'].includes(parent.layoutMode)
   ) {
     wrapperStyle.flex = 'none';

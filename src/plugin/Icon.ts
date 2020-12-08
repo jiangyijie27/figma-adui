@@ -1,7 +1,5 @@
 import {
-  convertNumToPx,
   convertColorToCSS,
-  toCamelCase,
   stringifyStyle,
 } from './utils';
 
@@ -34,8 +32,6 @@ const Icon = (node: SceneNode, additionalStyle: IBaseObject) => {
   if (!name) {
     return '';
   }
-
-  console.log(name.trim(), "yijie")
 
   return `
     <Icon

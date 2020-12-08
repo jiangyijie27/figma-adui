@@ -15,7 +15,6 @@ const Input = (
   const theme = getValueFromNode('风格', node);
   const intent = getValueFromNode('类型', node);
   const disabled = getValueFromNode('状态', node) === '禁用';
-  const limited = getValueFromNode('字数限制', node) === 'on';
 
   if ('children' in node) {
     const children = node.children;

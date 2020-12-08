@@ -23,7 +23,6 @@ import Switch from './Switch';
 import Table from './Table';
 import Tabs from './Tabs';
 import TimePicker from './TimePicker';
-import RenderContainer from './RenderContainer';
 import RenderRectangleNode from './RenderRectangleNode';
 import RenderTextNode from './RenderTextNode';
 import RenderFlex from './RenderFlex';
@@ -32,23 +31,12 @@ import {getPadding, reverseArr} from './utils';
 
 figma.showUI(__html__, {width: 700, height: 1200});
 
-const isContainer = (name: string) =>
-  [
-    'Container',
-    'Container: flex',
-    'Container: flex-c',
-    'Container: flex-sb',
-    '表单-wrap',
-    '表单',
-    'Pagination',
-  ].includes(name);
-
 const generate: IGenerate = node => {
   let returnString = '';
   if (!node || !node.visible) {
     return '';
   }
-  let {id, name, x, y, width, parent} = node;
+  let {id, name, parent} = node;
   let mainComponent: ComponentNode;
   let children: readonly SceneNode[];
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
@@ -62,7 +50,6 @@ const generate: IGenerate = node => {
     mainComponent = node.mainComponent;
   }
   let childrenCodes = '';
-  let style: React.CSSProperties = {};
   let additionalStyle: React.CSSProperties = {};
 
   /**
@@ -347,35 +334,6 @@ poll();
 // figma.on('selectionchange', poll);
 
 figma.ui.onmessage = (msg: {type: string}) => {
-  if (msg.type === 'order') {
-    const order = (n: SceneNode) => {
-      let startingIndex = 100000;
-      if ('children' in n) {
-        n.children
-          .map(node => {
-            startingIndex = Math.min(startingIndex, n.children.indexOf(node));
-            return node;
-          })
-          .sort((a, b) => {
-            if (n.name.includes('Container: flex')) {
-              return b.x - a.x;
-            } else {
-              return b.y - a.y;
-            }
-          })
-          .forEach((obj, i) => {
-            n.insertChild(startingIndex + i, obj);
-          });
-      }
-    };
-    const {selection} = figma.currentPage;
-
-    if (selection.length === 1) {
-      order(selection[0]);
-      poll();
-    }
-  }
-
   if (msg.type === 'generate') {
     poll();
   }

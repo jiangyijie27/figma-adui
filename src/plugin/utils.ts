@@ -212,14 +212,14 @@ export const convertNumToPx = (num: number): string => {
   return num !== 0 ? `${num}px` : `${num}`;
 };
 
-interface IGradientTransformData {
-  m00: number;
-  m01: number;
-  m02: number;
-  m10: number;
-  m11: number;
-  m12: number;
-}
+// interface IGradientTransformData {
+//   m00: number;
+//   m01: number;
+//   m02: number;
+//   m10: number;
+//   m11: number;
+//   m12: number;
+// }
 
 /**
  * number to 16
