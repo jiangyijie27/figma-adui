@@ -8,7 +8,9 @@ const Input = (
   // @ts-ignore
   const {layoutAlign, layoutGrow} = node;
 
-  if (layoutGrow === 1 || layoutAlign === 'STRETCH') {
+  if (layoutGrow === 1) {
+    additionalStyle.flex = 1;
+  } else if (layoutAlign === 'STRETCH') {
     additionalStyle.display = 'block';
     additionalStyle.width = '100%';
   } else {
