@@ -140,6 +140,7 @@ const RenderFlex = (
           .join(', ');
       }
     }
+  }
 
   /**
    * strokes
