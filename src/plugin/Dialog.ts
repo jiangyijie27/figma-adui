@@ -3,6 +3,7 @@ import {reverseArr, stringifyStyle} from './utils';
 const Dialog = (node: SceneNode, generate: IGenerate) => {
   const {width} = node;
   let title = '';
+  let header = null
   let headerContent = [];
   let headerStyle: React.CSSProperties = {
     paddingBottom: 0,
@@ -24,7 +25,7 @@ const Dialog = (node: SceneNode, generate: IGenerate) => {
     )
       .map(o => generate(o))
       .join('');
-    const header = children.find(o => o.name === '卡片标题');
+    header = children.find(o => o.name === '卡片标题');
 
     if (
       header &&
@@ -68,6 +69,7 @@ const Dialog = (node: SceneNode, generate: IGenerate) => {
           ? `headerStyle={${stringifyStyle(headerStyle)}}`
           : ''
       }
+      ${!header ? `headerElement={null}` : ''}
       ${headerContentStr.trim() ? `headerContent={${headerContentStr}}` : ''}
       bodyStyle={{ padding: 0 }}
     >

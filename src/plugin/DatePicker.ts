@@ -1,7 +1,13 @@
 import {getValueFromNode, stringifyStyle} from './utils';
 
 const DatePicker = (node: SceneNode, additionalStyle: IBaseObject) => {
-  additionalStyle.width = `${node.width}px`;
+  // @ts-ignore
+  const {layoutGrow} = node;
+  if (layoutGrow === 1) {
+    additionalStyle.flex = 1;
+  } else {
+    additionalStyle.width = `${node.width}px`;
+  }
   const theme = getValueFromNode('风格', node);
   const disabled = getValueFromNode('状态', node) === '禁用';
 

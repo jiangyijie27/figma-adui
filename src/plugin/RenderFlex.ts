@@ -250,9 +250,9 @@ const RenderFlex = (
 
   if ('children' in node) {
     if (layoutMode === 'VERTICAL') {
-      childrenNodes = `<div>${node.children
+      childrenNodes = `<div style={{ width: "100%" }}>${node.children
         .map(o => generate(o))
-        .join('</div><div>')}</div>`;
+        .join('</div><div style={{ width: "100%" }}>')}</div>`;
     } else {
       childrenNodes = node.children.map(o => generate(o)).join('');
     }
