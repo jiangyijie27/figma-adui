@@ -154,7 +154,12 @@ const RenderFlex = (
     strokeWeight = node.strokeWeight;
   }
 
-  if (strokes && strokes.length === 1 && strokes[0].type === 'SOLID' && strokes[0].visible) {
+  if (
+    strokes &&
+    strokes.length === 1 &&
+    strokes[0].type === 'SOLID' &&
+    strokes[0].visible
+  ) {
     additionalStyle.border = `${strokeWeight}px solid ${convertColorToCSS(
       strokes[0]
     )}`;
@@ -250,9 +255,15 @@ const RenderFlex = (
 
   if ('children' in node) {
     if (layoutMode === 'VERTICAL') {
-      childrenNodes = `<div style={{ width: "100%" }}>${node.children
+      if (!additionalStyle.justifyContent && !additionalStyle.alignItems) {
+        delete additionalStyle.justifyContent
+        delete additionalStyle.alignItems
+        delete additionalStyle.display
+        delete additionalStyle.flexDirection
+      }
+      childrenNodes = `<div>${node.children
         .map(o => generate(o))
-        .join('</div><div style={{ width: "100%" }}>')}</div>`;
+        .join('</div><div>')}</div>`;
     } else {
       childrenNodes = node.children.map(o => generate(o)).join('');
     }

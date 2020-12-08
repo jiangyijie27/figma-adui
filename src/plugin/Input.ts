@@ -6,9 +6,11 @@ const Input = (
   additionalStyle: IBaseObject
 ) => {
   // @ts-ignore
-  const {layoutGrow} = node;
-  if (layoutGrow === 1) {
-    additionalStyle.flex = 1;
+  const {layoutAlign, layoutGrow} = node;
+
+  if (layoutGrow === 1 || layoutAlign === 'STRETCH') {
+    additionalStyle.display = 'block';
+    additionalStyle.width = '100%';
   } else {
     additionalStyle.width = `${node.width}px`;
   }
@@ -88,7 +90,7 @@ const Input = (
       ${intent ? `intent="${intent}"` : ''}
       ${placeholder ? `placeholder="${placeholder}"` : ''}
       style={${stringifyStyle(additionalStyle)}}
-    />`
+    />`;
   }
 
   return `<Input

@@ -4,9 +4,11 @@ const Select = (node: SceneNode, additionalStyle: IBaseObject) => {
   const theme = getTheme(node);
   let searchable = false;
   // @ts-ignore
-  const {layoutGrow} = node;
-  if (layoutGrow === 1) {
-    additionalStyle.flex = 1;
+  const {layoutAlign, layoutGrow} = node;
+
+  if (layoutGrow === 1 || layoutAlign === 'STRETCH') {
+    additionalStyle.display = 'block';
+    additionalStyle.width = '100%';
   } else {
     additionalStyle.width = `${node.width}px`;
   }
