@@ -54,6 +54,7 @@ class App extends React.Component {
     codesStringOriginal: '',
     codesString: '',
     zoom: 1,
+    height: "700",
   };
 
   componentDidMount = () => {
@@ -90,7 +91,13 @@ class App extends React.Component {
   };
 
   render() {
-    const {activeIndex, codesString, codesStringOriginal, zoom} = this.state;
+    const {
+      activeIndex,
+      codesString,
+      codesStringOriginal,
+      zoom,
+      height,
+    } = this.state;
 
     return (
       <div>
@@ -103,15 +110,6 @@ class App extends React.Component {
             fontSize: '13px',
           }}
         >
-          <Button
-            size="mini"
-            style={{marginRight: '8px'}}
-            onClick={() => {
-              parent.postMessage({pluginMessage: {type: 'order'}}, '*');
-            }}
-          >
-            复制代码
-          </Button>
           <Button.Group size="mini">
             {[0.25, 0.5, 1].map(o => (
               <Button
@@ -199,6 +197,7 @@ class App extends React.Component {
         </div>
         <Input.Textarea
           value={codesString}
+          className="app-textarea"
           style={{
             width: '100%',
             height: '250px',
@@ -206,6 +205,21 @@ class App extends React.Component {
             fontSize: '12px!important',
           }}
           resize="vertical"
+        />
+        <div style={{marginTop: '16px', marginBottom: '8px', fontSize: '13px'}}>
+          调整视窗大小：
+        </div>
+        <Input
+          size="mini"
+          placeholder="调整视窗大小"
+          style={{ height: '30px'}}
+          value={height}
+          onChange={(_, val) => {
+            this.setState({height: val});
+          }}
+          onPressEnter={() => {
+            parent.postMessage({pluginMessage: {type: 'resize', height}}, '*');
+          }}
         />
         <style
           dangerouslySetInnerHTML={{

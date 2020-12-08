@@ -154,7 +154,7 @@ const RenderFlex = (
     strokeWeight = node.strokeWeight;
   }
 
-  if (strokes && strokes.length === 1 && strokes[0].type === 'SOLID') {
+  if (strokes && strokes.length === 1 && strokes[0].type === 'SOLID' && strokes[0].visible) {
     additionalStyle.border = `${strokeWeight}px solid ${convertColorToCSS(
       strokes[0]
     )}`;

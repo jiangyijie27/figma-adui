@@ -30,7 +30,7 @@ import RenderFlex from './RenderFlex';
 import TreeSelect from './TreeSelect';
 import {getPadding, reverseArr} from './utils';
 
-figma.showUI(__html__, {width: 700, height: 1200});
+figma.showUI(__html__, {width: 700, height: 700});
 
 const generate: IGenerate = node => {
   let returnString = '';
@@ -58,11 +58,16 @@ const generate: IGenerate = node => {
    */
   if ('itemSpacing' in parent) {
     const {itemSpacing, layoutMode} = parent;
+    let primaryAxisAlignItems: string;
+    if ('primaryAxisAlignItems' in parent) {
+      ({primaryAxisAlignItems} = parent);
+    }
     let marginValue = itemSpacing;
     if (
       parent.children.findIndex(o => o.id === id) !==
         parent.children.length - 1 &&
-      marginValue
+      marginValue &&
+      primaryAxisAlignItems !== 'SPACE_BETWEEN'
     ) {
       if (layoutMode === 'HORIZONTAL') {
         additionalStyle.marginRight = `${marginValue}px`;
@@ -278,8 +283,7 @@ const generate: IGenerate = node => {
      * RectangleNode
      */
     returnString = RenderLineNode(node, additionalStyle);
-  }
-  else if (node.type === 'TEXT') {
+  } else if (node.type === 'TEXT') {
     /**
      * TextNode
      */
@@ -340,8 +344,13 @@ const poll = () => {
 poll();
 // figma.on('selectionchange', poll);
 
-figma.ui.onmessage = (msg: {type: string}) => {
+figma.ui.onmessage = (msg: {type: string; height: string}) => {
   if (msg.type === 'generate') {
     poll();
+  }
+  if (msg.type === 'resize') {
+    try {
+      figma.ui.resize(700, parseInt(msg.height, 10));
+    } catch (error) {}
   }
 };

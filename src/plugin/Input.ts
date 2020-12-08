@@ -71,6 +71,20 @@ const Input = (
     }
   }
 
+  /**
+   * 大于 50 时判断为 TextArea
+   */
+  if (node.height > 50) {
+    additionalStyle.height = `${node.height}px`;
+
+    return `<Input.Textarea
+      ${disabled ? 'disabled' : ''}
+      ${intent ? `intent="${intent}"` : ''}
+      ${placeholder ? `placeholder="${placeholder}"` : ''}
+      style={${stringifyStyle(additionalStyle)}}
+    />`
+  }
+
   return `<Input
     ${disabled ? 'disabled' : ''}
     ${intent ? `intent="${intent}"` : ''}
