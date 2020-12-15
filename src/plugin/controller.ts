@@ -23,6 +23,7 @@ import Switch from './Switch';
 import Table from './Table';
 import Tabs from './Tabs';
 import TimePicker from './TimePicker';
+import Upload from './Upload';
 import RenderRectangleNode from './RenderRectangleNode';
 import RenderLineNode from './RenderLineNode';
 import RenderTextNode from './RenderTextNode';
@@ -273,6 +274,13 @@ const generate: IGenerate = node => {
      * 不允许 detach
      */
     returnString = Switch(node, additionalStyle);
+  } else if (mainComponent?.parent?.name.includes('上传')) {
+    /**
+     * Component: Upload
+     * 名称：上传
+     * 不允许 detach
+     */
+    returnString = Upload(node, additionalStyle);
   } else if (node.type === 'RECTANGLE') {
     /**
      * RectangleNode
