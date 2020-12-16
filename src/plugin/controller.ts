@@ -36,7 +36,6 @@ figma.showUI(__html__, {width: 700, height: 700});
 let additionalClassNames: IAdditionalClassName[] = [];
 
 const generate: IGenerate = (node, options = {}) => {
-  const {useClassName} = options;
   let returnString = '';
   if (!node || !node.visible) {
     return '';

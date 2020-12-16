@@ -7,7 +7,7 @@ const Card = (
 ) => {
   const wrapperStyle: React.CSSProperties = {};
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
-  let layoutGrow: 0 | 1;
+  let layoutGrow: number;
   if ('layoutMode' in node) {
     layoutMode = node.layoutMode;
   }
