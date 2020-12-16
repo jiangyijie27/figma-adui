@@ -1,10 +1,8 @@
-import {
-  convertColorToCSS,
-  stringifyStyle,
-} from './utils';
+import {convertColorToCSS, stringifyStyle} from './utils';
 
 const Icon = (node: SceneNode, additionalStyle: IBaseObject) => {
-  const {width} = node;
+  let {width} = node;
+  width = Math.round(width);
   let mainComponent: ComponentNode;
   if ('mainComponent' in node) {
     mainComponent = node.mainComponent;

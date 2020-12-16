@@ -1,9 +1,16 @@
-import {stringifyStyle, convertColorToCSS} from './utils';
+import {stringifyStyle, convertColorToCSS, styleObjectToCSS} from './utils';
 
-const RenderRectangleNode = (
-  node: RectangleNode,
-  additionalStyle: IBaseObject
-) => {
+const RenderRectangleNode = ({
+  node,
+  additionalStyle,
+  options = {},
+  additionalClassNames,
+}: {
+  node: RectangleNode;
+  additionalStyle: IBaseObject;
+  options: IBaseObject;
+  additionalClassNames: IAdditionalClassName[];
+}) => {
   let layoutAlign = '';
   if ('layoutAlign' in node) {
     const {layoutAlign: la} = node;
@@ -33,11 +40,28 @@ const RenderRectangleNode = (
     }
   }
 
+  let className = `rect_${node.id.replace(/:|;/g, '')}`.toLowerCase();
+
+  const inlineStyle = stringifyStyle(additionalStyle);
+
+  const cssStyle = styleObjectToCSS(additionalStyle);
+  const found = additionalClassNames.find(o => o.style === cssStyle);
+  if (found) {
+    className = found.className;
+  } else {
+    additionalClassNames.push({
+      style: cssStyle,
+      className,
+    });
+  }
+
   return `<div
     ${
-      Object.keys(additionalStyle).length
-        ? `style={${stringifyStyle(additionalStyle)}}`
-        : ''
+      options.useClassName
+        ? `className="${className}"`
+        : `${
+            Object.keys(additionalStyle).length ? `style={${inlineStyle}}` : ''
+          }`
     }
     />`;
 };

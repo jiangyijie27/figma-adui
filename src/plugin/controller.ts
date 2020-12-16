@@ -33,7 +33,10 @@ import {getPadding, reverseArr} from './utils';
 
 figma.showUI(__html__, {width: 700, height: 700});
 
-const generate: IGenerate = node => {
+let additionalClassNames: IAdditionalClassName[] = [];
+
+const generate: IGenerate = (node, options = {}) => {
+  const {useClassName} = options;
   let returnString = '';
   if (!node || !node.visible) {
     return '';
@@ -285,7 +288,12 @@ const generate: IGenerate = node => {
     /**
      * RectangleNode
      */
-    returnString = RenderRectangleNode(node, additionalStyle);
+    returnString = RenderRectangleNode({
+      node,
+      additionalStyle,
+      options,
+      additionalClassNames,
+    });
   } else if (node.type === 'LINE') {
     /**
      * RectangleNode
@@ -295,7 +303,12 @@ const generate: IGenerate = node => {
     /**
      * TextNode
      */
-    returnString = RenderTextNode(node, additionalStyle);
+    returnString = RenderTextNode({
+      node,
+      additionalStyle,
+      additionalClassNames,
+      options,
+    });
   } else if (mainComponent?.name.includes('/')) {
     /**
      * Component: Icon
@@ -305,11 +318,17 @@ const generate: IGenerate = node => {
     /**
      * Component: Flex
      */
-    returnString = RenderFlex(node, generate, additionalStyle);
+    returnString = RenderFlex({
+      node,
+      generate,
+      additionalStyle,
+      options,
+      additionalClassNames,
+    });
   } else if ('parent' in node && node.parent.type === 'PAGE') {
     if (children) {
       childrenCodes = (layoutMode === 'NONE' ? reverseArr(children) : children)
-        .map((o: SceneNode) => generate(o))
+        .map((o: SceneNode) => generate(o, options))
         .join('');
     }
     returnString = `<div>${childrenCodes}</div>`;
@@ -340,11 +359,30 @@ const generate: IGenerate = node => {
 };
 
 const poll = () => {
-  const selection = figma.currentPage.selection;
+  const {selection} = figma.currentPage;
   if (selection.length === 1) {
+    const codes_inline = (generate(selection[0]) || '').replace(
+      /\n\s*\n/g,
+      '\n'
+    );
+    const codes_react = (
+      generate(selection[0], {useClassName: true}) || ''
+    ).replace(/\n\s*\n/g, '\n');
+
+    const codes_css = additionalClassNames
+      .map(
+        o => `
+      .${o.className}${o.style}
+    `
+      )
+      .reverse()
+      .join('');
+
     figma.ui.postMessage({
       action: 'update',
-      codes: (generate(selection[0]) || '').replace(/\n\s*\n/g, '\n'),
+      codes_inline,
+      codes_react,
+      codes_css,
     });
   }
 };
@@ -352,8 +390,13 @@ const poll = () => {
 poll();
 // figma.on('selectionchange', poll);
 
-figma.ui.onmessage = (msg: {type: string; height: string}) => {
+figma.ui.onmessage = (msg: {
+  type: string;
+  height: string;
+  useClassName: boolean;
+}) => {
   if (msg.type === 'generate') {
+    additionalClassNames = [];
     poll();
   }
   if (msg.type === 'resize') {

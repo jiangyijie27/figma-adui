@@ -155,7 +155,7 @@ export const getPadding = (node: SceneNode) => {
  * 将 style 对象转换成 string
  * @param style IBaseObject
  */
-export const stringifyStyle = (style: IBaseObject) =>
+export const stringifyStyle = (style: IBaseObject): string =>
   JSON.stringify(style).replace(/"([^"]+)":/g, '$1:');
 
 /**
@@ -266,20 +266,31 @@ export const rgbToHex = ({
  * Convert CSS String to React style
  * @param str : CSS String
  */
-export const toCamelCase = (str: string) => {
+export const toCamelCase = (str: string): string =>
   // Lower cases the string
-  return (
-    str
-      .toLowerCase() // Replaces any - or _ characters with a space
-      .replace(/[-_]+/g, ' ') // Removes any non alphanumeric characters
-      .replace(/[^\w\s]/g, '') // Uppercases the first character in each group immediately following a space
-      // (delimited by spaces)
-      .replace(/ (.)/g, function($1) {
-        return $1.toUpperCase();
-      }) // Removes spaces
-      .replace(/ /g, '')
+  str
+    .toLowerCase() // Replaces any - or _ characters with a space
+    .replace(/[-_]+/g, ' ') // Removes any non alphanumeric characters
+    .replace(/[^\w\s]/g, '') // Uppercases the first character in each group immediately following a space
+    // (delimited by spaces)
+    .replace(/ (.)/g, function($1) {
+      return $1.toUpperCase();
+    }) // Removes spaces
+    .replace(/ /g, '');
+
+export const toHyphenCase = (str: string): string =>
+  str
+    .replace(/(?:^|\.?)([A-Z])/g, (_, y) => '-' + y.toLowerCase())
+    .replace(/^-/, '')
+    .replace(/,\n/g, ';')
+    .replace(/\n|"|'/g, '');
+
+export const styleObjectToCSS = (style: IBaseObject): string =>
+  toHyphenCase(
+    `{${Object.keys(style)
+      .map(o => `${o}: ${style[o]};`)
+      .join('')}}`
   );
-};
 
 export const convertColorToCSS = (
   paint: Paint,
@@ -307,7 +318,7 @@ export const convertColorToCSS = (
   } else if (type === 'IMAGE') {
     // if img return url(), figma does this as well
     return `url(https://source.unsplash.com/random/${
-      options.width && options.height
+      options?.width && options?.height
         ? `${options.width}x${options.height}`
         : ''
     }?nature)`;

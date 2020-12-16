@@ -4,15 +4,24 @@ import {
   convertNumToPx,
   convertColorToCSS,
   rgbToHex,
+  styleObjectToCSS,
 } from './utils';
-const RenderFlex = (
-  node: SceneNode,
-  generate: IGenerate,
-  additionalStyle: IBaseObject
-) => {
+const RenderFlex = ({
+  node,
+  generate,
+  additionalStyle,
+  additionalClassNames,
+  options = {},
+}: {
+  node: SceneNode;
+  generate: IGenerate;
+  additionalStyle: IBaseObject;
+  additionalClassNames: IAdditionalClassName[];
+  options: IBaseObject;
+}) => {
   const {type} = node;
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
-  let layoutGrow: 0 | 1;
+  let layoutGrow: number;
   if ('layoutMode' in node) {
     layoutMode = node.layoutMode;
   }
@@ -256,25 +265,44 @@ const RenderFlex = (
   if ('children' in node) {
     if (layoutMode === 'VERTICAL') {
       if (!additionalStyle.justifyContent && !additionalStyle.alignItems) {
-        delete additionalStyle.justifyContent
-        delete additionalStyle.alignItems
-        delete additionalStyle.display
-        delete additionalStyle.flexDirection
+        delete additionalStyle.justifyContent;
+        delete additionalStyle.alignItems;
+        delete additionalStyle.display;
+        delete additionalStyle.flexDirection;
       }
       childrenNodes = `<div>${node.children
-        .map(o => generate(o))
+        .map(o => generate(o, options))
         .join('</div><div>')}</div>`;
     } else {
-      childrenNodes = node.children.map(o => generate(o)).join('');
+      childrenNodes = node.children.map(o => generate(o, options)).join('');
     }
+  }
+
+  let className = `${node.type}_${node.id.replace(/:|;/g, '')}`.toLowerCase();
+
+  const inlineStyle = stringifyStyle(additionalStyle);
+
+  const cssStyle = styleObjectToCSS(additionalStyle);
+  const found = additionalClassNames.find(o => o.style === cssStyle);
+  if (found) {
+    className = found.className;
+  } else {
+    additionalClassNames.push({
+      style: cssStyle,
+      className,
+    });
   }
 
   return `
     <div
       ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
-          : ''
+        options.useClassName
+          ? `className="${className}"`
+          : `${
+              Object.keys(additionalStyle).length
+                ? `style={${inlineStyle}}`
+                : ''
+            }`
       }
     >
       ${childrenNodes}

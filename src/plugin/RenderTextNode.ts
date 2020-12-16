@@ -2,14 +2,23 @@ import {
   convertNumToPx,
   convertColorToCSS,
   toCamelCase,
+  toHyphenCase,
   stringifyStyle,
 } from './utils';
 
-const TextNode = (
-  node: TextNode,
-  additionalStyle: IBaseObject,
-  tagName: 'div' | 'span' = 'span'
-) => {
+const TextNode = ({
+  node,
+  additionalStyle,
+  tagName = 'span',
+  additionalClassNames,
+  options = {},
+}: {
+  node: TextNode;
+  additionalStyle: IBaseObject;
+  tagName?: 'div' | 'span';
+  additionalClassNames: IAdditionalClassName[];
+  options: IBaseObject;
+}) => {
   additionalStyle.display = 'inline-block';
 
   const {
@@ -18,9 +27,21 @@ const TextNode = (
     fontSize,
     letterSpacing,
     lineHeight,
+    textAlignHorizontal,
     fills,
   } = node;
   const style: string[] = [];
+  /**
+   * textAlign
+   */
+  switch (textAlignHorizontal) {
+    case 'CENTER':
+      additionalStyle.textAlign = 'center';
+      break;
+    case 'RIGHT':
+      additionalStyle.textAlign = 'right';
+      break;
+  }
   /**
    * fontSize
    */
@@ -103,19 +124,40 @@ const TextNode = (
     styleString.push(exText);
   });
 
+  const finalString = `
+  {
+    ${
+      Object.keys(additionalStyle).length
+        ? `${stringifyStyle(additionalStyle)
+            .slice(1, stringifyStyle(additionalStyle).length - 1)
+            .split(',')
+            .join(',\n')},`
+        : ''
+    }
+    ${styleString.join('\n')}
+  }
+  `;
+
+  const styleStr = toHyphenCase(finalString);
+  let className = `${node.type}_${node.id.replace(/:|;/g, '')}`.toLowerCase();
+
+  const found = additionalClassNames.find(o => o.style === styleStr);
+  if (found) {
+    className = found.className;
+  } else {
+    additionalClassNames.push({
+      style: styleStr,
+      className,
+    });
+  }
+
   return `
     <${tagName}
-      style={{
-        ${
-          Object.keys(additionalStyle).length
-            ? `${stringifyStyle(additionalStyle).slice(
-                1,
-                stringifyStyle(additionalStyle).length - 1
-              )},`
-            : ''
-        }
-        ${styleString.join('\n')}
-      }}
+      ${
+        options.useClassName
+          ? `className="${className}"`
+          : `style={${finalString}}`
+      }
     >
       ${characters}
     </${tagName}>
