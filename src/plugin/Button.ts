@@ -7,11 +7,13 @@ const Button = (props: IRenderProps) => {
     additionalStyle: additionalStyleParam = {},
     useTailwind,
   } = props;
-
-  console.log(node, 'Button');
   const additionalStyle = {};
   const size = getValueFromNode('尺寸', node);
-  const theme = getValueFromNode('轻量风格', node);
+  const theme =
+    getValueFromNode('轻量风格', node) === 'on' ||
+    getValueFromNode('风格', node) === 'light'
+      ? 'theme="light"'
+      : '';
   const intent = getValueFromNode('类型', node);
   const active = ['点击', '选中'].includes(getValueFromNode('状态', node));
   const disabled = getValueFromNode('禁用', node) === 'on';
@@ -78,7 +80,7 @@ const Button = (props: IRenderProps) => {
     ${leftIcon ? `leftIcon="${leftIcon}"` : ''}
     ${rightIcon ? `rightIcon="${rightIcon}"` : ''}
     ${size ? `size="${size}"` : ''}
-    ${theme === 'on' ? `theme="light"` : ''}
+    ${theme}
     ${
       Object.keys(additionalStyle).length
         ? `style={${stringifyStyle(additionalStyle)}}`

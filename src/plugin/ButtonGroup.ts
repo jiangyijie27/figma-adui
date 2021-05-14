@@ -1,23 +1,31 @@
-import {stringifyStyle} from './utils';
+import {stringifyStyle, styleObjectToTailwind} from './utils';
 
-const ButtonGroup = (
-  node: SceneNode,
-  generate: IGenerate,
-  additionalStyle: IBaseObject
-) => {
+const ButtonGroup = (props: IRenderProps) => {
+  const {
+    node,
+    generate,
+    additionalStyle: additionalStyleParam = {},
+    useTailwind,
+  } = props;
+  const additionalStyle = {};
+
   let childrenCodes = '';
   if ('children' in node) {
     const {children} = node;
     childrenCodes = children.map(o => generate(o)).join('\n');
   }
-  // auto layout 时子元素会倒序；array.prototype.reverse 会报错
+  let styleString = Object.keys(additionalStyle).length
+    ? `style={${stringifyStyle(additionalStyle)}}`
+    : '';
+
+  if (useTailwind) {
+    styleString = Object.keys(additionalStyle).length
+      ? `className="${styleObjectToTailwind(additionalStyle)}"`
+      : '';
+  }
   return `
     <Button.Group
-      ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
-          : ''
-      }
+      ${styleString}
     >
       ${childrenCodes}
     </Button.Group>

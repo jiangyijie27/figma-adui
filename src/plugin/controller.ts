@@ -117,7 +117,7 @@ const generate: IGenerate = (node, options = {}) => {
      * 名称：按钮组
      * 不允许 detach
      */
-    returnString = ButtonGroup(node, generate, additionalStyle);
+    returnString = ButtonGroup({node, generate, additionalStyle, useTailwind});
   } else if (
     mainComponent?.parent?.name === '按钮' ||
     mainComponent?.parent?.name === '.按钮'
