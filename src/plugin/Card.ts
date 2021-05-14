@@ -1,19 +1,10 @@
-import {reverseArr, stringifyStyle} from './utils';
+import {reverseArr, stringifyStyle, styleObjectToTailwind} from './utils';
 
-const Card = (
-  node: SceneNode,
-  generate: IGenerate,
-  additionalStyle: IBaseObject
-) => {
-  const wrapperStyle: React.CSSProperties = {};
+const Card = (props: IRenderProps) => {
+  const {node, generate, additionalStyle = {}, useTailwind} = props;
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
-  let layoutGrow: number;
   if ('layoutMode' in node) {
     layoutMode = node.layoutMode;
-  }
-  if ('layoutGrow' in node) {
-    const {layoutGrow: lg} = node;
-    layoutGrow = lg;
   }
   let size: TSize;
   let childrenNodes = '';
@@ -23,45 +14,28 @@ const Card = (
       ? reverseArr(node.children)
       : node.children
     )
-      .map(o => generate(o))
+      .map(o => generate(o, {useTailwind}))
       .join('');
   }
 
-  const {parent, width} = node;
-  if (
-    layoutGrow !== 1 &&
-    (layoutMode === 'VERTICAL'
-      ? // @ts-ignore
-        node.counterAxisSizingMode === 'FIXED'
-      : // @ts-ignore
-        node.primaryAxisSizingMode === 'FIXED') &&
-    // @ts-ignore
-    ['HORIZONTAL', 'VERTICAL'].includes(parent.layoutMode)
-  ) {
-    wrapperStyle.flex = 'none';
-    wrapperStyle.width = `${width}px`;
+  let styleString = Object.keys(additionalStyle).length
+    ? `style={${stringifyStyle(additionalStyle)}}`
+    : '';
+
+  if (useTailwind) {
+    styleString = Object.keys(additionalStyle).length
+      ? `className="${styleObjectToTailwind(additionalStyle)}"`
+      : '';
   }
 
   const cardNodes = `
     <Card
       ${size ? `size="${size}"` : ''}
-      ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
-          : ''
-      }
+      ${styleString}
     >
       ${childrenNodes}
     </Card>
   `;
-
-  if (Object.keys(wrapperStyle).length) {
-    return `<div
-      style={${stringifyStyle(wrapperStyle)}}
-    >
-      ${cardNodes}
-    </div>`;
-  }
 
   return cardNodes;
 };

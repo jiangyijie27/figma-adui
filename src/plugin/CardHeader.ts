@@ -1,9 +1,6 @@
-import {getPadding, reverseArr, stringifyStyle} from './utils';
-const CardHeader = (
-  node: SceneNode,
-  generate: IGenerate,
-  additionalStyle: IBaseObject
-) => {
+import {reverseArr, stringifyStyle, styleObjectToTailwind} from './utils';
+const CardHeader = (props: IRenderProps) => {
+  const {node, generate, additionalStyle = {}, useTailwind} = props;
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   if ('layoutMode' in node) {
     layoutMode = node.layoutMode;
@@ -33,7 +30,7 @@ const CardHeader = (
       subTitle = subTitleChild.characters;
     }
     if (topContentChild && 'children' in topContentChild) {
-      topContent = generate(topContentChild);
+      topContent = generate(topContentChild, {useTailwind});
     }
 
     const childs = node.children.filter(o => {
@@ -44,18 +41,23 @@ const CardHeader = (
       );
     });
 
-    childString = (layoutMode === "NONE" ? reverseArr(childs) : childs)
-      .map(o => generate(o))
+    childString = (layoutMode === 'NONE' ? reverseArr(childs) : childs)
+      .map(o => generate(o, {useTailwind}))
       .join('');
   }
 
-  const padding = getPadding(node);
-  if (padding !== '16px 16px 20px 24px') {
-    additionalStyle.padding = padding;
+  if ('effects' in node && node.effects.length) {
+    additionalStyle.boxShadow = '0 1px 0 rgba(0, 0, 0, 0.06)';
   }
 
-  if ('effects' in node && node.effects.length) {
-    additionalStyle.boxShadow = 'rgba(0, 0, 0, 0.06) 0 1px 0 0';
+  let styleString = Object.keys(additionalStyle).length
+    ? `style={${stringifyStyle(additionalStyle)}}`
+    : '';
+
+  if (useTailwind) {
+    styleString = Object.keys(additionalStyle).length
+      ? `className="${styleObjectToTailwind(additionalStyle)}"`
+      : '';
   }
 
   return `<Card.Header
@@ -68,11 +70,7 @@ const CardHeader = (
       }`
           : ''
       }
-      ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
-          : ''
-      }
+      ${styleString}
       ${
         childString
           ? `

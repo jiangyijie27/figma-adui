@@ -1,11 +1,20 @@
 import {getValueFromNode, stringifyStyle} from './utils';
 
-const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
+const Button = (props: IRenderProps) => {
+  const {
+    node,
+    generate,
+    additionalStyle: additionalStyleParam = {},
+    useTailwind,
+  } = props;
+
+  console.log(node, 'Button');
+  const additionalStyle = {};
   const size = getValueFromNode('尺寸', node);
-  const theme = getValueFromNode('风格', node);
+  const theme = getValueFromNode('轻量风格', node);
   const intent = getValueFromNode('类型', node);
   const active = ['点击', '选中'].includes(getValueFromNode('状态', node));
-  const disabled = getValueFromNode('状态', node) === '禁用';
+  const disabled = getValueFromNode('禁用', node) === 'on';
 
   let buttonContent = '';
   let leftIcon = '';
@@ -69,7 +78,7 @@ const Button = (node: SceneNode, additionalStyle: IBaseObject) => {
     ${leftIcon ? `leftIcon="${leftIcon}"` : ''}
     ${rightIcon ? `rightIcon="${rightIcon}"` : ''}
     ${size ? `size="${size}"` : ''}
-    ${theme ? `theme="${theme}"` : ''}
+    ${theme === 'on' ? `theme="light"` : ''}
     ${
       Object.keys(additionalStyle).length
         ? `style={${stringifyStyle(additionalStyle)}}`

@@ -2,6 +2,7 @@
 // @ts-nocheck
 import * as React from 'react';
 import JsxParser from 'react-jsx-parser';
+import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import {
   Affix,
   Alert,
@@ -56,20 +57,53 @@ class App extends React.Component {
     codes_inline: '',
     codes_react_original: '',
     codes_react: '',
-    codes_css: '',
+    codes_tailwind_original: '',
+    codes_tailwind: '',
     zoom: 1,
-    height: '700',
-    useClassName: true,
+    height: '1200',
+    useType: 'tailwind',
+    copied: false,
+  };
+
+  timer = 0;
+
+  handleCopy = () => {
+    this.textArea.select();
+    document.execCommand('copy');
+    this.setState({copied: true});
+  };
+
+  handleMouseEnter = () => {
+    clearTimeout(this.timer);
+  };
+
+  handleMouseLeave = () => {
+    this.timer = setTimeout(() => {
+      this.setState({
+        copied: false,
+      });
+    }, 1000);
   };
 
   componentDidMount = () => {
     window.onmessage = (event: any) => {
-      const {codes_inline, codes_react, codes_css} = event.data.pluginMessage;
+      const {
+        codes_inline,
+        codes_react,
+        codes_tailwind,
+      } = event.data.pluginMessage;
       try {
         this.setState({
           codes_inline_original: codes_inline,
           codes_inline: prettier
             .format(codes_inline, {
+              parser: 'babel',
+              plugins: [parserBabel],
+            })
+            .slice(0, -2),
+          codes_tailwind_original: codes_tailwind,
+          codes_tailwind: prettier
+            .format(codes_tailwind, {
               parser: 'babel',
               plugins: [parserBabel],
             })
@@ -81,10 +115,6 @@ class App extends React.Component {
               plugins: [parserBabel],
             })
             .slice(0, -2),
-          codes_css: prettier.format(codes_css, {
-            parser: 'css',
-            plugins: [parseCSS],
-          }),
         });
       } catch (error) {
         console.log(error, 'prettier error');
@@ -93,7 +123,8 @@ class App extends React.Component {
           codes_inline,
           codes_react_original: codes_react,
           codes_react,
-          codes_css,
+          codes_tailwind_original: codes_tailwind,
+          codes_tailwind,
         });
       }
     };
@@ -119,11 +150,20 @@ class App extends React.Component {
       codes_inline,
       codes_react_original,
       codes_react,
-      codes_css,
+      codes_tailwind_original,
+      codes_tailwind,
       zoom,
       height,
-      useClassName,
+      useType,
+      copied,
     } = this.state;
+
+    const value =
+      useType === 'tailwind'
+        ? codes_tailwind
+        : useType === 'class'
+        ? codes_react
+        : codes_inline;
 
     return (
       <div>
@@ -164,7 +204,7 @@ class App extends React.Component {
             padding: '40px',
             overflow: 'auto',
             resize: 'both',
-            backgroundColor: '#e5e5e5',
+            backgroundColor: '#fafafa',
             border: '1px solid #eee',
           }}
         >
@@ -223,50 +263,55 @@ class App extends React.Component {
           style={{marginTop: '16px', marginBottom: '8px'}}
         >
           <Button
-            active={useClassName}
+            active={useType === 'tailwind'}
             onClick={() => {
-              this.setState({useClassName: true});
+              this.setState({useType: 'tailwind'});
             }}
           >
-            React + 类名
+            TailwindCSS
           </Button>
           <Button
-            active={!useClassName}
+            active={useType === 'inline'}
             onClick={() => {
-              this.setState({useClassName: false});
+              this.setState({useType: 'inline'});
             }}
           >
-            React + 内联样式
+            InlineStyle
           </Button>
         </Button.Group>
-        <div style={{fontSize: '12px', lineHeight: '28px'}}>React 代码：</div>
-        <Input.Textarea
-          value={useClassName ? codes_react : codes_inline}
-          className="app-textarea"
-          style={{
-            width: '100%',
-            height: '250px',
-            fontFamily: 'SF Mono',
-            fontSize: '12px!important',
-          }}
-          resize="vertical"
-        />
-        {useClassName && (
-          <>
-            <div style={{fontSize: '12px', lineHeight: '28px'}}>CSS 代码：</div>
-            <Input.Textarea
-              value={codes_css}
-              className="app-textarea"
-              style={{
-                width: '100%',
-                height: '250px',
-                fontFamily: 'SF Mono',
-                fontSize: '12px!important',
-              }}
-              resize="vertical"
-            />
-          </>
-        )}
+        <div className="codesWrapper">
+          <SyntaxHighlighter
+            wrapLines
+            customStyle={{backgroundColor: 'transparent'}}
+            linenumberstyle={{color: '#bab6b6'}}
+            className="highlight"
+            language="jsx"
+          >
+            {value}
+          </SyntaxHighlighter>
+          <textarea
+            ref={textarea => {
+              this.textArea = textarea;
+            }}
+            value={value}
+            readOnly
+            style={{
+              position: 'absolute',
+              top: '-9999px',
+            }}
+          />
+          <Button
+            className="copyBtn"
+            leftIcon={copied ? 'tick-circle' : 'copy-outlined'}
+            intent={copied ? 'primary' : 'normal'}
+            theme="light"
+            onClick={this.handleCopy}
+            onMouseEnter={this.handleMouseEnter}
+            onMouseLeave={this.handleMouseLeave}
+          >
+            {copied ? '已复制' : '复制代码'}
+          </Button>
+        </div>
         <div style={{marginTop: '16px', marginBottom: '8px', fontSize: '12px'}}>
           调整视窗大小：
         </div>

@@ -1,3 +1,4 @@
+import {CSSProperties} from 'react';
 /**
  * 根据不同 layout 属性，reverse 一个数组
  * @param input readonly SceneNode[]
@@ -389,4 +390,185 @@ export const convertColorToCSS = (
     // n = 1 / temp;
     // o = (temp - 1) / 2;
   }
+};
+
+export const convertPxToNum = (num: string | number): string =>
+  `${num}`.split('px')[0];
+
+const colors = {
+  transparent: 'transparent',
+  currentColor: 'current',
+  '#000': 'black',
+  '#fff': 'white',
+  '#07c160': 'green',
+  '#eda20c': 'orange',
+  '#2b7bd6': 'blue',
+  '#d9514c': 'red',
+  '#ffffff': 'gray-0',
+  '#fafafa': 'gray-50',
+  '#f2f2f2': 'gray-100',
+  '#ebebeb': 'gray-200',
+  '#e6e6e6': 'gray-300',
+  '#e0e0e0': 'gray-400',
+  '#d6d6d6': 'gray-500',
+  '#c7c7c7': 'gray-600',
+  '#a3a3a3': 'gray-700',
+  '#6b6b6b': 'gray-800',
+  '#1f1f1f': 'gray-900',
+  'rgba(0, 0, 0, 0)': 'tp-gray-0',
+  'rgba(0, 0, 0, 0.02)': 'tp-gray-50',
+  'rgba(0, 0, 0, 0.06)': 'tp-gray-100',
+  'rgba(0, 0, 0, 0.08)': 'tp-gray-200',
+  'rgba(0, 0, 0, 0.1)': 'tp-gray-300',
+  'rgba(0, 0, 0, 0.12)': 'tp-gray-400',
+  'rgba(0, 0, 0, 0.16)': 'tp-gray-500',
+  'rgba(0, 0, 0, 0.22)': 'tp-gray-600',
+  'rgba(0, 0, 0, 0.36)': 'tp-gray-700',
+  'rgba(0, 0, 0, 0.58)': 'tp-gray-800',
+  'rgba(0, 0, 0, 0.88)': 'tp-gray-900',
+};
+
+const shadows = {
+  none: 'none',
+  '0 0 0 1px rgba(223, 223, 223, 0.45)': 0,
+  '0 0 0 1px rgba(223, 223, 223, 0.5), 0 3px 6px 0 rgba(0, 0, 0, 0.04)': 1,
+  '0 0 0 1px rgba(219, 219, 219, 0.55),0 3px 5px 0 rgba(0, 0, 0, 0.05), 0 6px 15px 0 rgba(0, 0, 0, 0.05)': 2,
+  '0 0 0 1px rgba(219, 219, 219, 0.7), 0 8px 20px 0 rgba(0, 0, 0, 0.08), 0 4px 10px 0 rgba(0, 0, 0, 0.07)': 3,
+  '0 0 0 1px rgba(107, 107, 107, 0.15), 0 10px 36px 0 rgba(0, 0, 0, 0.1), 0 6px 15px 0 rgba(0, 0, 0, 0.07)': 4,
+};
+Object.keys(colors).forEach(key => {
+  const value = colors[key];
+  shadows[`0 -1px 0 ${key}`] = `t-${value}`;
+  shadows[`0 1px 0 ${key} inset`] = `t-inset-${value}`;
+  shadows[`0 1px 0 ${key}`] = `b-${value}`;
+  shadows[`0 -1px 0 ${key} inset`] = `b-inset-${value}`;
+  shadows[`1px 0 0 ${key}`] = `r-${value}`;
+  shadows[`-1px 0 0 ${key} inset`] = `r-inset-${value}`;
+  shadows[`-1px 0 0 ${key}`] = `l-${value}`;
+  shadows[`1px 0 0 ${key} inset`] = `l-inset-${value}`;
+});
+
+export const styleObjectToTailwind = (styleParam: IBaseObject) => {
+  const style = styleParam;
+
+  if (style.marginTop && style.marginTop === style.marginBottom) {
+    style.marginY = style.marginTop;
+    delete style.marginTop;
+    delete style.marginBottom;
+  }
+
+  if (style.marginLeft && style.marginLeft === style.marginRight) {
+    style.marginX = style.marginLeft;
+    delete style.marginLeft;
+    delete style.marginRight;
+  }
+
+  if (style.marginX && style.marginX === style.marginY) {
+    style.margin = style.marginX;
+    delete style.marginX;
+    delete style.marginY;
+  }
+
+  if (style.paddingTop && style.paddingTop === style.paddingBottom) {
+    style.paddingY = style.paddingTop;
+    delete style.paddingTop;
+    delete style.paddingBottom;
+  }
+
+  if (style.paddingLeft && style.paddingLeft === style.paddingRight) {
+    style.paddingX = style.paddingLeft;
+    delete style.paddingLeft;
+    delete style.paddingRight;
+  }
+
+  if (style.paddingX && style.paddingX === style.paddingY) {
+    style.padding = style.paddingX;
+    delete style.paddingX;
+    delete style.paddingY;
+  }
+
+  let cls = '';
+  Object.keys(style).forEach(key => {
+    const value = style[key];
+    switch (key) {
+      case 'margin':
+        cls += `m-${convertPxToNum(value)} `;
+        break;
+      case 'marginX':
+        cls += `mx-${convertPxToNum(value)} `;
+        break;
+      case 'marginY':
+        cls += `my-${convertPxToNum(value)} `;
+        break;
+      case 'marginTop':
+        cls += `mt-${convertPxToNum(value)} `;
+        break;
+      case 'marginRight':
+        cls += `mr-${convertPxToNum(value)} `;
+        break;
+      case 'marginBottom':
+        cls += `mb-${convertPxToNum(value)} `;
+        break;
+      case 'marginLeft':
+        cls += `ml-${convertPxToNum(value)} `;
+        break;
+      case 'padding':
+        cls += `p-${convertPxToNum(value)} `;
+        break;
+      case 'paddingX':
+        cls += `px-${convertPxToNum(value)} `;
+        break;
+      case 'paddingY':
+        cls += `py-${convertPxToNum(value)} `;
+        break;
+      case 'paddingTop':
+        cls += `pt-${convertPxToNum(value)} `;
+        break;
+      case 'paddingRight':
+        cls += `pr-${convertPxToNum(value)} `;
+        break;
+      case 'paddingBottom':
+        cls += `pb-${convertPxToNum(value)} `;
+        break;
+      case 'paddingLeft':
+        cls += `pl-${convertPxToNum(value)} `;
+        break;
+      case 'display':
+        cls += `${value} `;
+        break;
+      case 'alignItems':
+        if (value === 'flex-end') {
+          cls += `items-end `;
+        } else {
+          cls += `items-${value} `;
+        }
+        break;
+      case 'justifyContent':
+        if (value === 'flex-end') {
+          cls += `justify-end `;
+        } else if (value === 'space-between') {
+          cls += `justify-between `;
+        } else {
+          cls += `justify-${value} `;
+        }
+        break;
+      case 'flex':
+        cls += `flex-${value} `;
+        break;
+      case 'fontSize':
+        cls += `text-${convertPxToNum(value)} `;
+        break;
+      case 'lineHeight':
+        cls += `leading-${convertPxToNum(value)} `;
+        break;
+      case 'color':
+        cls += `text-${colors[value]} `;
+        break;
+      case 'boxShadow':
+        cls += `shadow-${shadows[value]} `;
+      default:
+        break;
+    }
+  });
+  return cls.trim();
 };

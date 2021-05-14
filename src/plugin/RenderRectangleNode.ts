@@ -4,12 +4,10 @@ const RenderRectangleNode = ({
   node,
   additionalStyle,
   options = {},
-  additionalClassNames,
 }: {
   node: RectangleNode;
   additionalStyle: IBaseObject;
   options: IBaseObject;
-  additionalClassNames: IAdditionalClassName[];
 }) => {
   let layoutAlign = '';
   if ('layoutAlign' in node) {
@@ -40,30 +38,11 @@ const RenderRectangleNode = ({
     }
   }
 
-  let className = `rect_${node.id.replace(/:|;/g, '')}`.toLowerCase();
-
   const inlineStyle = stringifyStyle(additionalStyle);
 
-  const cssStyle = styleObjectToCSS(additionalStyle);
-  const found = additionalClassNames.find(o => o.style === cssStyle);
-  if (found) {
-    className = found.className;
-  } else {
-    additionalClassNames.push({
-      style: cssStyle,
-      className,
-    });
-  }
-
   return `<div
-    ${
-      options.useClassName
-        ? `className="${className}"`
-        : `${
-            Object.keys(additionalStyle).length ? `style={${inlineStyle}}` : ''
-          }`
-    }
-    />`;
+    ${Object.keys(additionalStyle).length ? `style={${inlineStyle}}` : ''}
+  />`;
 };
 
 export default RenderRectangleNode;

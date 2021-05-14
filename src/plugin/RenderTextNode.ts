@@ -4,23 +4,22 @@ import {
   toCamelCase,
   toHyphenCase,
   stringifyStyle,
+  styleObjectToCSS,
+  styleObjectToTailwind,
 } from './utils';
 
 const TextNode = ({
   node,
   additionalStyle,
-  tagName = 'span',
-  additionalClassNames,
+  tagName = 'div',
   options = {},
 }: {
   node: TextNode;
   additionalStyle: IBaseObject;
   tagName?: 'div' | 'span';
-  additionalClassNames: IAdditionalClassName[];
   options: IBaseObject;
 }) => {
-  additionalStyle.display = 'inline-block';
-
+  const {useTailwind} = options;
   const {
     characters,
     fontName,
@@ -28,9 +27,17 @@ const TextNode = ({
     letterSpacing,
     lineHeight,
     textAlignHorizontal,
+    textAutoResize,
     fills,
+    width,
   } = node;
-  const style: string[] = [];
+  const style: IBaseObject = {};
+  /**
+   * width
+   */
+  if (textAutoResize !== 'WIDTH_AND_HEIGHT') {
+    additionalStyle.width = `${Math.round(width)}px`;
+  }
   /**
    * textAlign
    */
@@ -46,7 +53,7 @@ const TextNode = ({
    * fontSize
    */
   if (typeof fontSize === 'number') {
-    style.push(`font-size: ${convertNumToPx(fontSize)};`);
+    style.fontSize = convertNumToPx(fontSize);
   }
   /**
    * fontWeight
@@ -74,7 +81,7 @@ const TextNode = ({
       Ultrablack: 950,
     };
     if (fontWeightMapping[fontWeight] !== 400) {
-      style.push(`font-weight: ${fontWeightMapping[fontWeight]};`);
+      style.fontWeight = fontWeightMapping[fontWeight];
     }
   }
   /**
@@ -86,9 +93,9 @@ const TextNode = ({
       readonly unit: 'PIXELS' | 'PERCENT';
     };
     if (unit === 'PIXELS') {
-      style.push(`line-height: ${convertNumToPx(value)};`);
+      style.lineHeight = convertNumToPx(value);
     } else if (unit === 'PERCENT') {
-      style.push(`line-height: ${value}%;`);
+      style.lineHeight = `${value}%`;
     }
   }
   /**
@@ -98,9 +105,9 @@ const TextNode = ({
     const {unit, value} = letterSpacing;
     if (value !== 0) {
       if (unit === 'PIXELS') {
-        style.push(`letter-spacing: ${convertNumToPx(value)};`);
+        style.letterSpacing = convertNumToPx(value);
       } else {
-        style.push(`letter-spacing: ${value / 100}em;`);
+        style.letterSpacing = `${value / 100}em;`;
       }
     }
   }
@@ -113,51 +120,27 @@ const TextNode = ({
     fills.length === 1 &&
     fills[0].type === 'SOLID'
   ) {
-    style.push(`color: ${convertColorToCSS(fills[0])};`);
+    style.color = convertColorToCSS(fills[0]);
   }
 
-  const styleString: string[] = [];
+  let finalStyle = {
+    ...additionalStyle,
+    ...style,
+  };
 
-  style.forEach((cssExpression: string) => {
-    const ex = cssExpression.replace(';', '').split(': ');
-    const exText = toCamelCase(ex[0]) + ': ' + '"' + ex[1] + '"' + ',';
-    styleString.push(exText);
-  });
+  let finalString = Object.keys(finalStyle).length
+    ? `style={${stringifyStyle(finalStyle)}}`
+    : '';
 
-  const finalString = `
-  {
-    ${
-      Object.keys(additionalStyle).length
-        ? `${stringifyStyle(additionalStyle)
-            .slice(1, stringifyStyle(additionalStyle).length - 1)
-            .split(',')
-            .join(',\n')},`
-        : ''
-    }
-    ${styleString.join('\n')}
-  }
-  `;
-
-  const styleStr = toHyphenCase(finalString);
-  let className = `${node.type}_${node.id.replace(/:|;/g, '')}`.toLowerCase();
-
-  const found = additionalClassNames.find(o => o.style === styleStr);
-  if (found) {
-    className = found.className;
-  } else {
-    additionalClassNames.push({
-      style: styleStr,
-      className,
-    });
+  if (useTailwind) {
+    finalString = Object.keys(finalStyle).length
+      ? `className="${styleObjectToTailwind(finalStyle)}"`
+      : '';
   }
 
   return `
     <${tagName}
-      ${
-        options.useClassName
-          ? `className="${className}"`
-          : `style={${finalString}}`
-      }
+      ${finalString}
     >
       ${characters}
     </${tagName}>

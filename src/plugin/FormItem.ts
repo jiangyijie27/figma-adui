@@ -1,10 +1,7 @@
-import {reverseArr, stringifyStyle} from './utils';
+import {reverseArr, stringifyStyle, styleObjectToTailwind} from './utils';
 
-const FormItem = (
-  node: SceneNode,
-  generate: IGenerate,
-  additionalStyle: IBaseObject
-) => {
+const FormItem = (props: IRenderProps) => {
+  const {node, generate, additionalStyle = {}, useTailwind} = props;
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   if ('layoutMode' in node) {
     layoutMode = node.layoutMode;
@@ -16,9 +13,7 @@ const FormItem = (
     const labelNode = node.children.find(
       o => o.name === '表单-label'
     ) as TextNode;
-    const helperNode = node.children.find(
-      o => o.name === '反馈/help-circle'
-    );
+    const helperNode = node.children.find(o => o.name === '反馈/help-circle');
     if (labelNode) {
       label = labelNode.characters;
       if (labelNode.x > 0) {
@@ -37,18 +32,24 @@ const FormItem = (
     additionalStyle.marginBottom = 0;
   }
 
+  let styleString = Object.keys(additionalStyle).length
+    ? `style={${stringifyStyle(additionalStyle)}}`
+    : '';
+
+  if (useTailwind) {
+    styleString = Object.keys(additionalStyle).length
+      ? `className="${styleObjectToTailwind(additionalStyle)}"`
+      : '';
+  }
+
   return `
     <Form.Item
       ${label ? `label="${label}"` : ''}
       ${labelHelper ? `labelHelper="${labelHelper}"` : ''}
-      ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
-          : ''
-      }
+      ${styleString}
     >
       ${(layoutMode === 'NONE' ? reverseArr(controlNode) : controlNode)
-        .map(o => generate(o))
+        .map(o => generate(o, {useTailwind}))
         .join('')}
     </Form.Item>
   `;
