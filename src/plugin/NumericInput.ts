@@ -1,23 +1,23 @@
 import {getValueFromNode, stringifyStyle} from './utils';
 
-const NumericInput = (node: SceneNode, additionalStyle: IBaseObject) => {
+const NumericInput = (node: SceneNode, additionalClassNames: IBaseObject) => {
   // @ts-ignore
   const {layoutAlign, layoutGrow} = node;
 
   if (layoutGrow === 1) {
-    additionalStyle.flex = 1;
+    additionalClassNames.flex = 1;
   } else if (layoutAlign === 'STRETCH') {
-    additionalStyle.display = 'block';
-    additionalStyle.width = '100%';
+    additionalClassNames.display = 'block';
+    additionalClassNames.width = '100%';
   } else {
-    additionalStyle.width = `${node.width}px`;
+    additionalClassNames.width = `${node.width}px`;
   }
   const size = getValueFromNode('尺寸', node);
 
   return `
     <NumericInput
       ${size ? `size="${size}"` : ''}
-      style={${stringifyStyle(additionalStyle)}}
+      style={${stringifyStyle(additionalClassNames)}}
     />
   `;
 };

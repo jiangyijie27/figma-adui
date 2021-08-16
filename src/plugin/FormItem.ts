@@ -1,7 +1,9 @@
-import {reverseArr, stringifyStyle, styleObjectToTailwind} from './utils';
+import {reverseArr} from './utils';
 
 const FormItem = (props: IRenderProps) => {
-  const {node, generate, additionalStyle = {}, useTailwind} = props;
+  const {node, generate, additionalClassNames = []} = props;
+  additionalClassNames.push('mb-0');
+
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   if ('layoutMode' in node) {
     layoutMode = node.layoutMode;
@@ -17,7 +19,7 @@ const FormItem = (props: IRenderProps) => {
     if (labelNode) {
       label = labelNode.characters;
       if (labelNode.x > 0) {
-        additionalStyle.marginLeft = `${labelNode.x}px`;
+        additionalClassNames.push(`ml-${labelNode.x}`);
       }
     }
     if (helperNode) {
@@ -28,28 +30,20 @@ const FormItem = (props: IRenderProps) => {
     );
   }
 
-  if (!additionalStyle.marginBottom) {
-    additionalStyle.marginBottom = 0;
-  }
+  let classNameString = '';
 
-  let styleString = Object.keys(additionalStyle).length
-    ? `style={${stringifyStyle(additionalStyle)}}`
-    : '';
-
-  if (useTailwind) {
-    styleString = Object.keys(additionalStyle).length
-      ? `className="${styleObjectToTailwind(additionalStyle)}"`
-      : '';
+  if (additionalClassNames.length) {
+    classNameString = `className="${additionalClassNames.join(' ')}"`;
   }
 
   return `
     <Form.Item
       ${label ? `label="${label}"` : ''}
       ${labelHelper ? `labelHelper="${labelHelper}"` : ''}
-      ${styleString}
+      ${classNameString}
     >
       ${(layoutMode === 'NONE' ? reverseArr(controlNode) : controlNode)
-        .map(o => generate(o, {useTailwind}))
+        .map(o => generate(o))
         .join('')}
     </Form.Item>
   `;

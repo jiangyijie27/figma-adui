@@ -1,18 +1,18 @@
 import {getTheme, stringifyStyle} from './utils';
 
-const Select = (node: SceneNode, additionalStyle: IBaseObject) => {
+const Select = (node: SceneNode, additionalClassNames: IBaseObject) => {
   const theme = getTheme(node);
   let searchable = false;
   // @ts-ignore
   const {layoutAlign, layoutGrow} = node;
 
   if (layoutGrow === 1) {
-    additionalStyle.flex = 1;
+    additionalClassNames.flex = 1;
   } else if (layoutAlign === 'STRETCH') {
-    additionalStyle.display = 'block';
-    additionalStyle.width = '100%';
+    additionalClassNames.display = 'block';
+    additionalClassNames.width = '100%';
   } else {
-    additionalStyle.width = `${node.width}px`;
+    additionalClassNames.width = `${node.width}px`;
   }
 
   if ('children' in node) {
@@ -29,7 +29,7 @@ const Select = (node: SceneNode, additionalStyle: IBaseObject) => {
     <Select
       ${searchable ? `searchable` : ''}
       ${theme ? `theme="${theme}"` : ''}
-      style={${stringifyStyle(additionalStyle)}}
+      style={${stringifyStyle(additionalClassNames)}}
     >
       <Select.Option key="1">选项</Select.Option>
     </Select>

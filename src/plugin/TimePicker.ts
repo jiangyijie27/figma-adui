@@ -1,16 +1,16 @@
 import {getTheme, stringifyStyle} from './utils';
 
-const TimePicker = (node: SceneNode, additionalStyle: IBaseObject) => {
+const TimePicker = (node: SceneNode, additionalClassNames: IBaseObject) => {
   // @ts-ignore
   const {layoutAlign, layoutGrow} = node;
 
   if (layoutGrow === 1) {
-    additionalStyle.flex = 1;
+    additionalClassNames.flex = 1;
   } else if (layoutAlign === 'STRETCH') {
-    additionalStyle.display = 'block';
-    additionalStyle.width = '100%';
+    additionalClassNames.display = 'block';
+    additionalClassNames.width = '100%';
   } else {
-    additionalStyle.width = `${node.width}px`;
+    additionalClassNames.width = `${node.width}px`;
   }
   const theme = getTheme(node);
   let onlyHour = false;
@@ -32,7 +32,7 @@ const TimePicker = (node: SceneNode, additionalStyle: IBaseObject) => {
     <TimePicker
       ${onlyHour ? `onlyHour` : ''}
       ${theme ? `theme="${theme}"` : ''}
-      style={${stringifyStyle(additionalStyle)}}
+      style={${stringifyStyle(additionalClassNames)}}
     />
   `;
 };

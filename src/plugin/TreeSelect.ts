@@ -1,20 +1,20 @@
 import {stringifyStyle} from './utils';
 
-const TreeSelect = (node: SceneNode, additionalStyle: IBaseObject) => {
+const TreeSelect = (node: SceneNode, additionalClassNames: IBaseObject) => {
   // @ts-ignore
   const {layoutAlign, layoutGrow} = node;
 
   if (layoutGrow === 1) {
-    additionalStyle.flex = 1;
+    additionalClassNames.flex = 1;
   } else if (layoutAlign === 'STRETCH') {
-    additionalStyle.display = 'block';
-    additionalStyle.width = '100%';
+    additionalClassNames.display = 'block';
+    additionalClassNames.width = '100%';
   } else {
-    additionalStyle.width = `${node.width}px`;
+    additionalClassNames.width = `${node.width}px`;
   }
   return `
     <TreeSelect
-      style={${stringifyStyle(additionalStyle)}}
+      style={${stringifyStyle(additionalClassNames)}}
     >
       <TreeSelect.TreeNode
         key="1"

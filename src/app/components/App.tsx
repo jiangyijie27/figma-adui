@@ -53,15 +53,10 @@ declare function require(path: string): any;
 
 class App extends React.Component {
   state = {
-    codes_inline_original: '',
-    codes_inline: '',
-    codes_react_original: '',
-    codes_react: '',
-    codes_tailwind_original: '',
-    codes_tailwind: '',
+    codes_original: '',
+    codes: '',
     zoom: 1,
     height: '1200',
-    useType: 'tailwind',
     copied: false,
   };
 
@@ -87,30 +82,12 @@ class App extends React.Component {
 
   componentDidMount = () => {
     window.onmessage = (event: any) => {
-      const {
-        codes_inline,
-        codes_react,
-        codes_tailwind,
-      } = event.data.pluginMessage;
+      const {codes} = event.data.pluginMessage;
       try {
         this.setState({
-          codes_inline_original: codes_inline,
-          codes_inline: prettier
-            .format(codes_inline, {
-              parser: 'babel',
-              plugins: [parserBabel],
-            })
-            .slice(0, -2),
-          codes_tailwind_original: codes_tailwind,
-          codes_tailwind: prettier
-            .format(codes_tailwind, {
-              parser: 'babel',
-              plugins: [parserBabel],
-            })
-            .slice(0, -2),
-          codes_react_original: codes_react,
-          codes_react: prettier
-            .format(codes_react, {
+          codes_original: codes,
+          codes: prettier
+            .format(codes, {
               parser: 'babel',
               plugins: [parserBabel],
             })
@@ -119,12 +96,8 @@ class App extends React.Component {
       } catch (error) {
         console.log(error, 'prettier error');
         this.setState({
-          codes_inline_original: codes_inline,
-          codes_inline,
-          codes_react_original: codes_react,
-          codes_react,
-          codes_tailwind_original: codes_tailwind,
-          codes_tailwind,
+          codes_original: codes,
+          codes,
         });
       }
     };
@@ -146,24 +119,12 @@ class App extends React.Component {
   render() {
     const {
       activeIndex,
-      codes_inline_original,
-      codes_inline,
-      codes_react_original,
-      codes_react,
-      codes_tailwind_original,
-      codes_tailwind,
+      codes_original,
+      codes,
       zoom,
       height,
-      useType,
       copied,
     } = this.state;
-
-    const value =
-      useType === 'tailwind'
-        ? codes_tailwind
-        : useType === 'class'
-        ? codes_react
-        : codes_inline;
 
     return (
       <div>
@@ -252,33 +213,12 @@ class App extends React.Component {
                 TreeSelect,
                 Upload,
               }}
-              jsx={codes_inline_original
+              jsx={codes_original
                 .replace(/(\r\n|\n|\r)/gm, '')
                 .replace(/\s+/g, ' ')}
             />
           </div>
         </div>
-        <Button.Group
-          size="mini"
-          style={{marginTop: '16px', marginBottom: '8px'}}
-        >
-          <Button
-            active={useType === 'tailwind'}
-            onClick={() => {
-              this.setState({useType: 'tailwind'});
-            }}
-          >
-            TailwindCSS
-          </Button>
-          <Button
-            active={useType === 'inline'}
-            onClick={() => {
-              this.setState({useType: 'inline'});
-            }}
-          >
-            InlineStyle
-          </Button>
-        </Button.Group>
         <div className="codesWrapper">
           <SyntaxHighlighter
             wrapLines
@@ -287,13 +227,13 @@ class App extends React.Component {
             className="highlight"
             language="jsx"
           >
-            {value}
+            {codes}
           </SyntaxHighlighter>
           <textarea
             ref={textarea => {
               this.textArea = textarea;
             }}
-            value={value}
+            value={codes}
             readOnly
             style={{
               position: 'absolute',

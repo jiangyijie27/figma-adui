@@ -1,16 +1,16 @@
 import {getValueFromNode, stringifyStyle} from './utils';
 
-const DatePicker = (node: SceneNode, additionalStyle: IBaseObject) => {
+const DatePicker = (node: SceneNode, additionalClassNames: IBaseObject) => {
   // @ts-ignore
   const {layoutAlign, layoutGrow} = node;
 
   if (layoutGrow === 1) {
-    additionalStyle.flex = 1;
+    additionalClassNames.flex = 1;
   } else if (layoutAlign === 'STRETCH') {
-    additionalStyle.display = 'block';
-    additionalStyle.width = '100%';
+    additionalClassNames.display = 'block';
+    additionalClassNames.width = '100%';
   } else {
-    additionalStyle.width = `${node.width}px`;
+    additionalClassNames.width = `${node.width}px`;
   }
   const theme = getValueFromNode('风格', node);
   const disabled = getValueFromNode('状态', node) === '禁用';
@@ -29,7 +29,7 @@ const DatePicker = (node: SceneNode, additionalStyle: IBaseObject) => {
     <${isRangePicker ? 'DatePicker.RangePicker' : 'DatePicker'}
       ${disabled ? 'disabled' : ''}
       ${theme ? `theme="${theme}"` : ''}
-      style={${stringifyStyle(additionalStyle)}}
+      style={${stringifyStyle(additionalClassNames)}}
     />
   `;
 };

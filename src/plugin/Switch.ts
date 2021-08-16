@@ -1,6 +1,6 @@
 import {getValueFromNode, stringifyStyle} from './utils';
 
-const Switch = (node: SceneNode, additionalStyle: IBaseObject) => {
+const Switch = (node: SceneNode, additionalClassNames: IBaseObject) => {
   const size = getValueFromNode('尺寸', node);
   const status = getValueFromNode('状态', node);
   let checked = false;
@@ -41,8 +41,8 @@ const Switch = (node: SceneNode, additionalStyle: IBaseObject) => {
           : ''
       }
       ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
+        Object.keys(additionalClassNames).length
+          ? `style={${stringifyStyle(additionalClassNames)}}`
           : ''
       }
     />

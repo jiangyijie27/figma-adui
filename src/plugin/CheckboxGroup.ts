@@ -3,7 +3,7 @@ import {getValueFromNode, stringifyStyle} from './utils';
 const RadioGroup = (
   node: SceneNode,
   generate: IGenerate,
-  additionalStyle: IBaseObject
+  additionalClassNames: IBaseObject
 ) => {
   const size = getValueFromNode('尺寸', node);
   let childrenString = '';
@@ -22,8 +22,8 @@ const RadioGroup = (
     <Checkbox.Group
       ${size ? `size="${size}"` : ''}
       ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
+        Object.keys(additionalClassNames).length
+          ? `style={${stringifyStyle(additionalClassNames)}}`
           : ''
       }
     >

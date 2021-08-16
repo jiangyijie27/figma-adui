@@ -1,24 +1,21 @@
 import {stringifyStyle, convertColorToCSS} from './utils';
 
-const RenderLineNode = (
-  node: LineNode,
-  additionalStyle: IBaseObject
-) => {
+const RenderLineNode = (node: LineNode, additionalClassNames: IBaseObject) => {
   let layoutAlign = '';
   if ('layoutAlign' in node) {
     const {layoutAlign: la} = node;
     layoutAlign = la;
   }
   if (layoutAlign !== 'STRETCH') {
-    additionalStyle.width = `${Math.round(node.width)}px`;
+    additionalClassNames.width = `${Math.round(node.width)}px`;
   }
-  additionalStyle.height = `${Math.round(node.strokeWeight)}px`;
+  additionalClassNames.height = `${Math.round(node.strokeWeight)}px`;
 
   const {strokes: fills} = node;
   if (fills && Array.isArray(fills)) {
     // 最简单的情况，纯色背景
     if (fills.length === 1) {
-      additionalStyle.background = convertColorToCSS(fills[0]);
+      additionalClassNames.background = convertColorToCSS(fills[0]);
     } else if (fills.length > 1) {
       const c = fills.map((fill, index) =>
         convertColorToCSS(fill, {
@@ -26,7 +23,7 @@ const RenderLineNode = (
         })
       );
 
-      additionalStyle.background = c
+      additionalClassNames.background = c
         .filter(o => o)
         .reverse()
         .join(', ');
@@ -35,8 +32,8 @@ const RenderLineNode = (
 
   return `<div
     ${
-      Object.keys(additionalStyle).length
-        ? `style={${stringifyStyle(additionalStyle)}}`
+      Object.keys(additionalClassNames).length
+        ? `style={${stringifyStyle(additionalClassNames)}}`
         : ''
     }
     />`;

@@ -3,7 +3,7 @@ import {reverseArr, stringifyStyle} from './utils';
 const Table = (
   node: SceneNode,
   generate: IGenerate,
-  additionalStyle: IBaseObject
+  additionalClassNames: IBaseObject
 ) => {
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   if ('layoutMode' in node) {
@@ -16,7 +16,7 @@ const Table = (
   let selectMultiple = null;
 
   if (['卡片', '对话框'].includes(node.parent.name)) {
-    additionalStyle.boxShadow =
+    additionalClassNames.boxShadow =
       '0 1px 0 rgba(0, 0, 0, .08), 0 -1px 0 rgba(0, 0, 0, .08)';
   }
 
@@ -176,8 +176,8 @@ const Table = (
     style={{ boxShadow: "0 1px 0 rgba(0, 0, 0, .08), 0 -1px 0 rgba(0, 0, 0, .08)" }}
     ${headerEmphasized ? 'headerEmphasized' : ''}
     ${
-      Object.keys(additionalStyle).length
-        ? `style={${stringifyStyle(additionalStyle)}}`
+      Object.keys(additionalClassNames).length
+        ? `style={${stringifyStyle(additionalClassNames)}}`
         : ''
     }
     ${
