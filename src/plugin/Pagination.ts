@@ -1,8 +1,8 @@
 import {getValueFromNode, stringifyStyle} from './utils';
 
-const Pagination = (node: SceneNode, additionalStyle: IBaseObject) => {
+const Pagination = (node: SceneNode, additionalClassNames: IBaseObject) => {
   const {name} = node;
-  const size = getValueFromNode("尺寸", node);
+  const size = getValueFromNode('尺寸', node);
   let showButtonJumper = true;
   let showInputJumper = false;
   let theme: TTheme = null;
@@ -43,8 +43,8 @@ const Pagination = (node: SceneNode, additionalStyle: IBaseObject) => {
       ${theme ? `theme="${theme}"` : ''}
       total={99}
       ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
+        Object.keys(additionalClassNames).length
+          ? `style={${stringifyStyle(additionalClassNames)}}`
           : ''
       }
     />

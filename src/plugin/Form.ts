@@ -1,4 +1,4 @@
-import {reverseArr, stringifyStyle, styleObjectToTailwind} from './utils';
+import {reverseArr} from './utils';
 
 const getFormatStrLeng = (str: string) => {
   const len = str.length;
@@ -16,7 +16,7 @@ const getFormatStrLeng = (str: string) => {
 };
 
 const Form = (props: IRenderProps) => {
-  const {node, generate, additionalStyle = {}, useTailwind} = props;
+  const {node, generate, additionalClassNames = []} = props;
 
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   if ('layoutMode' in node) {
@@ -30,7 +30,7 @@ const Form = (props: IRenderProps) => {
       ? reverseArr(node.children)
       : node.children
     )
-      .map(o => generate(o, {useTailwind}))
+      .map(o => generate(o))
       .join('');
 
     node.children.forEach(o => {
@@ -47,22 +47,16 @@ const Form = (props: IRenderProps) => {
     });
   }
 
-  console.log(additionalStyle, 'additionalStyle');
+  let classNameString = '';
 
-  let styleString = Object.keys(additionalStyle).length
-    ? `style={${stringifyStyle(additionalStyle)}}`
-    : '';
-
-  if (useTailwind) {
-    styleString = Object.keys(additionalStyle).length
-      ? `className="${styleObjectToTailwind(additionalStyle)}"`
-      : '';
+  if (additionalClassNames.length) {
+    classNameString = `className="${additionalClassNames.join(' ')}"`;
   }
 
   return `
     <Form
       ${labelSize ? `labelSize={${labelSize}}` : ''}
-      ${styleString}
+      ${classNameString}
     >
       ${childrenNodes}
     </Form>

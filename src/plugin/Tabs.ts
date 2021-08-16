@@ -1,6 +1,6 @@
 import {getValueFromNode, stringifyStyle} from './utils';
 
-const Tabs = (node: SceneNode, additionalStyle: IBaseObject) => {
+const Tabs = (node: SceneNode, additionalClassNames: IBaseObject) => {
   let size = getValueFromNode('尺寸', node);
   let childrenNodes = '';
   let defaultValue = '';
@@ -53,8 +53,8 @@ const Tabs = (node: SceneNode, additionalStyle: IBaseObject) => {
       defaultValue="${defaultValue}"
       ${size ? `size="${size}"` : ''}
       ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
+        Object.keys(additionalClassNames).length
+          ? `style={${stringifyStyle(additionalClassNames)}}`
           : ''
       }
     >

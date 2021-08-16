@@ -16,7 +16,7 @@ const RenderRectangleNode = ({
   if (layoutAlign !== 'STRETCH') {
     additionalClassNames.push(`w-${node.width}`);
   }
-  additionalClassNames.push(`h-${node.height}`);
+  additionalClassNames.push(`h-${node.height}`, 'rounded-full');
 
   const {fills} = node;
   if (fills && Array.isArray(fills)) {

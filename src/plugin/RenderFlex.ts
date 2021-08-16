@@ -1,6 +1,5 @@
 import {
   getPadding,
-  stringifyStyle,
   convertNumToPx,
   convertColorToCSS,
   rgbToHex,
@@ -9,14 +8,11 @@ import {
 const RenderFlex = ({
   node,
   generate,
-  additionalStyle,
-  additionalClassNames,
   options = {},
 }: {
   node: SceneNode;
   generate: IGenerate;
-  additionalStyle: IBaseObject;
-  additionalClassNames: IAdditionalClassName[];
+  additionalClassNames: string[];
   options: IBaseObject;
 }) => {
   const {type} = node;
@@ -30,12 +26,12 @@ const RenderFlex = ({
     layoutGrow = lg;
   }
   if (layoutGrow === 1) {
-    additionalStyle.flex = 1;
+    additionalClassNames.flex = 1;
   }
-  additionalStyle.display = 'flex';
+  additionalClassNames.display = 'flex';
 
   if (layoutMode === 'VERTICAL') {
-    additionalStyle.flexDirection = 'column';
+    additionalClassNames.flexDirection = 'column';
   }
 
   /**
@@ -49,13 +45,13 @@ const RenderFlex = ({
     const {primaryAxisAlignItems} = node;
     switch (primaryAxisAlignItems) {
       case 'CENTER':
-        additionalStyle.justifyContent = 'center';
+        additionalClassNames.justifyContent = 'center';
         break;
       case 'MAX':
-        additionalStyle.justifyContent = 'flex-end';
+        additionalClassNames.justifyContent = 'flex-end';
         break;
       case 'SPACE_BETWEEN':
-        additionalStyle.justifyContent = 'space-between';
+        additionalClassNames.justifyContent = 'space-between';
         break;
       default:
     }
@@ -72,10 +68,10 @@ const RenderFlex = ({
     const {counterAxisAlignItems} = node;
     switch (counterAxisAlignItems) {
       case 'CENTER':
-        additionalStyle.alignItems = 'center';
+        additionalClassNames.alignItems = 'center';
         break;
       case 'MAX':
-        additionalStyle.alignItems = 'flex-end';
+        additionalClassNames.alignItems = 'flex-end';
         break;
       default:
     }
@@ -83,7 +79,7 @@ const RenderFlex = ({
 
   const padding = getPadding(node);
   if (padding) {
-    additionalStyle.padding = padding;
+    additionalClassNames.padding = padding;
   }
 
   /**
@@ -98,9 +94,9 @@ const RenderFlex = ({
       layoutGrow !== 1
     ) {
       if (layoutMode === 'VERTICAL') {
-        additionalStyle.height = `${Math.round(height)}px`;
+        additionalClassNames.height = `${Math.round(height)}px`;
       } else {
-        additionalStyle.width = `${Math.round(width)}px`;
+        additionalClassNames.width = `${Math.round(width)}px`;
       }
     }
   }
@@ -117,9 +113,9 @@ const RenderFlex = ({
       layoutGrow !== 1
     ) {
       if (layoutMode === 'VERTICAL') {
-        additionalStyle.width = `${Math.round(width)}px`;
+        additionalClassNames.width = `${Math.round(width)}px`;
       } else {
-        additionalStyle.height = `${Math.round(height)}px`;
+        additionalClassNames.height = `${Math.round(height)}px`;
       }
     }
   }
@@ -132,7 +128,7 @@ const RenderFlex = ({
     if (fills && Array.isArray(fills)) {
       // 最简单的情况，纯色背景
       if (fills.length === 1) {
-        additionalStyle.background = convertColorToCSS(fills[0], {
+        additionalClassNames.background = convertColorToCSS(fills[0], {
           width: node.width,
           height: node.height,
         });
@@ -143,7 +139,7 @@ const RenderFlex = ({
           })
         );
 
-        additionalStyle.background = c
+        additionalClassNames.background = c
           .filter(o => o)
           .reverse()
           .join(', ');
@@ -169,7 +165,7 @@ const RenderFlex = ({
     strokes[0].type === 'SOLID' &&
     strokes[0].visible
   ) {
-    additionalStyle.border = `${strokeWeight}px solid ${convertColorToCSS(
+    additionalClassNames.border = `${strokeWeight}px solid ${convertColorToCSS(
       strokes[0]
     )}`;
   }
@@ -192,8 +188,8 @@ const RenderFlex = ({
 
   // 如果四个 radius 不同，则 cornerRadius 会是 symbol
   if (typeof cornerRadius === 'number' && cornerRadius !== 0) {
-    additionalStyle.borderRadius = convertNumToPx(cornerRadius);
-    additionalStyle.overflow = 'hidden';
+    additionalClassNames.borderRadius = convertNumToPx(cornerRadius);
+    additionalClassNames.overflow = 'hidden';
   } else {
     const rad = `${convertNumToPx(topLeftRadius)} ${convertNumToPx(
       topRightRadius
@@ -202,8 +198,8 @@ const RenderFlex = ({
     )}`;
 
     if (rad !== '0 0 0 0') {
-      additionalStyle.borderRadius = rad;
-      additionalStyle.overflow = 'hidden';
+      additionalClassNames.borderRadius = rad;
+      additionalClassNames.overflow = 'hidden';
     }
   }
 
@@ -240,35 +236,38 @@ const RenderFlex = ({
       });
 
       if (type === 'TEXT') {
-        additionalStyle.textShadow = shadowsStr.filter(o => o).join(', ');
+        additionalClassNames.textShadow = shadowsStr.filter(o => o).join(', ');
       } else {
-        additionalStyle.boxShadow = shadowsStr.filter(o => o).join(', ');
+        additionalClassNames.boxShadow = shadowsStr.filter(o => o).join(', ');
       }
     }
   }
 
   if (
-    additionalStyle.background === '' ||
-    additionalStyle.background === 'url()'
+    additionalClassNames.background === '' ||
+    additionalClassNames.background === 'url()'
   ) {
-    delete additionalStyle.background;
+    delete additionalClassNames.background;
   }
-  if (additionalStyle.boxShadow === '') {
-    delete additionalStyle.boxShadow;
+  if (additionalClassNames.boxShadow === '') {
+    delete additionalClassNames.boxShadow;
   }
-  if (additionalStyle.borderRadius === '') {
-    delete additionalStyle.borderRadius;
+  if (additionalClassNames.borderRadius === '') {
+    delete additionalClassNames.borderRadius;
   }
 
   let childrenNodes = '';
 
   if ('children' in node) {
     if (layoutMode === 'VERTICAL') {
-      if (!additionalStyle.justifyContent && !additionalStyle.alignItems) {
-        delete additionalStyle.justifyContent;
-        delete additionalStyle.alignItems;
-        delete additionalStyle.display;
-        delete additionalStyle.flexDirection;
+      if (
+        !additionalClassNames.justifyContent &&
+        !additionalClassNames.alignItems
+      ) {
+        delete additionalClassNames.justifyContent;
+        delete additionalClassNames.alignItems;
+        delete additionalClassNames.display;
+        delete additionalClassNames.flexDirection;
       }
       childrenNodes = `<div>${node.children
         .map(o => generate(o, options))
@@ -280,9 +279,9 @@ const RenderFlex = ({
 
   let className = `${node.type}_${node.id.replace(/:|;/g, '')}`.toLowerCase();
 
-  const inlineStyle = stringifyStyle(additionalStyle);
+  const inlineStyle = stringifyStyle(additionalClassNames);
 
-  const cssStyle = styleObjectToCSS(additionalStyle);
+  const cssStyle = styleObjectToCSS(additionalClassNames);
   const found = additionalClassNames.find(o => o.style === cssStyle);
   if (found) {
     className = found.className;
@@ -299,7 +298,7 @@ const RenderFlex = ({
         options.useClassName
           ? `className="${className}"`
           : `${
-              Object.keys(additionalStyle).length
+              Object.keys(additionalClassNames).length
                 ? `style={${inlineStyle}}`
                 : ''
             }`

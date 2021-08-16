@@ -1,13 +1,20 @@
-import {stringifyStyle, getTheme, getIntent} from './utils';
+import {getValueFromNode, getIntent} from './utils';
 
-const Alert = (node: SceneNode, additionalStyle: IBaseObject) => {
-  const theme = getTheme(node);
+const Alert = (props: IRenderProps) => {
+  const {node, additionalClassNames = []} = props;
+  const theme =
+    getValueFromNode('轻量风格', node) === 'on' ||
+    getValueFromNode('风格', node) === 'light'
+      ? 'theme="light"'
+      : '';
   const intent = getIntent(node);
   let expandContent = '';
   let text = '';
   let closable = false;
 
-  additionalStyle.width = `${node.width}px`;
+  if (node.layoutAlign !== 'STRETCH') {
+    additionalClassNames.push(`w-${node.width}`);
+  }
 
   if ('children' in node) {
     const textNode = node.children.find(o => o.name === 'Text');
@@ -29,6 +36,12 @@ const Alert = (node: SceneNode, additionalStyle: IBaseObject) => {
     }
   }
 
+  let classNameString = '';
+
+  if (additionalClassNames.length) {
+    classNameString = `className="${additionalClassNames.join(' ')}"`;
+  }
+
   return `
     <Alert
       ${expandContent ? 'expandContent="这里是展开内容。"' : ''}
@@ -36,11 +49,7 @@ const Alert = (node: SceneNode, additionalStyle: IBaseObject) => {
       ${text ? `text="${text}"` : ''}
       ${intent ? `intent="${intent}"` : ''}
       ${theme ? `theme="${theme}"` : ''}
-      ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
-          : ''
-      }
+      ${classNameString}
     />
   `;
 };

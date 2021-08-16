@@ -1,13 +1,13 @@
 import {getValueFromNode, stringifyStyle} from './utils';
 
-const ColorPicker = (node: SceneNode, additionalStyle: IBaseObject) => {
+const ColorPicker = (node: SceneNode, additionalClassNames: IBaseObject) => {
   const size = getValueFromNode('尺寸', node);
   return `
     <ColorPicker
       ${size ? `size="${size}"` : ''}
       ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
+        Object.keys(additionalClassNames).length
+          ? `style={${stringifyStyle(additionalClassNames)}}`
           : ''
       }
     />

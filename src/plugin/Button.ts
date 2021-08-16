@@ -1,13 +1,7 @@
-import {getValueFromNode, stringifyStyle} from './utils';
+import {getValueFromNode} from './utils';
 
 const Button = (props: IRenderProps) => {
-  const {
-    node,
-    generate,
-    additionalStyle: additionalStyleParam = {},
-    useTailwind,
-  } = props;
-  const additionalStyle = {};
+  const {node} = props;
   const size = getValueFromNode('尺寸', node);
   const theme =
     getValueFromNode('轻量风格', node) === 'on' ||
@@ -81,11 +75,6 @@ const Button = (props: IRenderProps) => {
     ${rightIcon ? `rightIcon="${rightIcon}"` : ''}
     ${size ? `size="${size}"` : ''}
     ${theme}
-    ${
-      Object.keys(additionalStyle).length
-        ? `style={${stringifyStyle(additionalStyle)}}`
-        : ''
-    }
     ${
       buttonContent
         ? `>

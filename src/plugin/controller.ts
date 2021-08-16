@@ -25,18 +25,17 @@ import Tabs from './Tabs';
 import TimePicker from './TimePicker';
 import Upload from './Upload';
 import RenderRectangleNode from './RenderRectangleNode';
+import RenderEllipseNode from './RenderEllipseNode';
 import RenderLineNode from './RenderLineNode';
 import RenderTextNode from './RenderTextNode';
-import getLayoutStyle from './getLayoutStyle';
+import getLayoutClassName from './getLayoutClassName';
 import TreeSelect from './TreeSelect';
-import {reverseArr, stringifyStyle, styleObjectToTailwind} from './utils';
+import {reverseArr} from './utils';
 
 figma.showUI(__html__, {width: 700, height: 1200});
 
-let additionalClassNames = '';
-
-const generate: IGenerate = (node, options = {}) => {
-  const useTailwind = options.useTailwind;
+const generate: IGenerate = node => {
+  console.log(node, 'yijie');
   let returnString = '';
   if (!node || !node.visible) {
     return '';
@@ -59,65 +58,81 @@ const generate: IGenerate = (node, options = {}) => {
     mainComponent = node.mainComponent;
   }
   let childrenCodes = '';
-  let additionalStyle: React.CSSProperties = {};
+  let additionalClassNames: string[] = [];
 
-  if (layoutMode === 'HORIZONTAL') {
-    additionalStyle = getLayoutStyle(node);
+  if (['HORIZONTAL', 'VERTICAL'].includes(layoutMode)) {
+    additionalClassNames = getLayoutClassName(node);
   }
+  // 纵向 padding
   if ('paddingTop' in node && node.paddingTop) {
-    additionalStyle.paddingTop = `${node.paddingTop}px`;
-  }
-  if ('paddingRight' in node && node.paddingRight) {
-    additionalStyle.paddingRight = `${node.paddingRight}px`;
-  }
-  if ('paddingBottom' in node && node.paddingBottom) {
-    additionalStyle.paddingBottom = `${node.paddingBottom}px`;
-  }
-  if ('paddingLeft' in node && node.paddingLeft) {
-    additionalStyle.paddingLeft = `${node.paddingLeft}px`;
+    if ('paddingBottom' in node && node.paddingBottom) {
+      if (node.paddingTop === node.paddingBottom) {
+        additionalClassNames.push(`py-${node.paddingTop}`);
+      } else {
+        additionalClassNames.push(`pt-${node.paddingTop}`);
+        additionalClassNames.push(`pb-${node.paddingBottom}`);
+      }
+    } else {
+      additionalClassNames.push(`pt-${node.paddingTop}`);
+    }
+  } else if ('paddingBottom' in node && node.paddingBottom) {
+    additionalClassNames.push(`pb-${node.paddingBottom}`);
   }
 
+  // 横向 padding
+  if ('paddingLeft' in node && node.paddingLeft) {
+    if ('paddingRight' in node && node.paddingRight) {
+      if (node.paddingLeft === node.paddingRight) {
+        additionalClassNames.push(`px-${node.paddingLeft}`);
+      } else {
+        additionalClassNames.push(`pl-${node.paddingLeft}`);
+        additionalClassNames.push(`pr-${node.paddingRight}`);
+      }
+    } else {
+      additionalClassNames.push(`pl-${node.paddingLeft}`);
+    }
+  } else if ('paddingRight' in node && node.paddingRight) {
+    additionalClassNames.push(`pr-${node.paddingRight}`);
+  }
+
+  // 如果父级是 flex 则判断 layoutGrow
+  // 以前会在这里做 marginRight marginBottom 的复杂添加
+  // 现在有了 tailwind 的 space 相关类名，直接在父级加
   if (
     'layoutMode' in parent &&
-    (parent.layoutMode === 'HORIZONTAL' || parent.layoutMode === 'VERTICAL')
+    ['HORIZONTAL', 'VERTICAL'].includes(parent.layoutMode) &&
+    layoutGrow === 1
   ) {
-    const childrenIds = parent.children.map(o => o.id);
-    const index = childrenIds.findIndex(o => o === id);
-    if (index !== childrenIds.length - 1) {
-      if (parent.layoutMode === 'HORIZONTAL') {
-        if (layoutGrow === 1) {
-          additionalStyle.flex = 1;
-        }
-        if (parent.itemSpacing) {
-          additionalStyle.marginRight = `${parent.itemSpacing}px`;
-        }
-      } else {
-        if (parent.itemSpacing) {
-          additionalStyle.marginBottom = `${parent.itemSpacing}px`;
-        }
-      }
-    }
+    additionalClassNames.push('flex-1');
   }
 
   if (name === '卡片' || mainComponent?.name === '卡片') {
     /**
      * Component: Card
      */
-    returnString = Card({node, generate, additionalStyle, useTailwind});
+    returnString = Card({node, generate, additionalClassNames});
   } else if (name === '标题 + 描述文字') {
-    returnString = CardHeader({node, generate, additionalStyle, useTailwind});
+    returnString = CardHeader({
+      node,
+      generate,
+      additionalClassNames,
+    });
   } else if (name.includes('提醒') || mainComponent?.name.includes('提醒')) {
     /**
      * Component: Alert
      */
-    returnString = Alert(node, additionalStyle);
+    returnString = Alert({node, generate, additionalClassNames});
   } else if (mainComponent?.parent?.name === '按钮组') {
     /**
      * Component: Button.Group
      * 名称：按钮组
      * 不允许 detach
      */
-    returnString = ButtonGroup({node, generate, additionalStyle, useTailwind});
+    returnString = ButtonGroup({
+      node,
+      generate,
+      additionalClassNames,
+    });
   } else if (
     mainComponent?.parent?.name === '按钮' ||
     mainComponent?.parent?.name === '.按钮'
@@ -127,7 +142,7 @@ const generate: IGenerate = (node, options = {}) => {
      * 名称：按钮 | .按钮（按钮组中的情况）
      * 不允许 detach
      */
-    returnString = Button({node, generate, additionalStyle, useTailwind});
+    returnString = Button({node, generate, additionalClassNames});
   } else if (['勾选', '勾选状态'].includes(mainComponent?.parent?.name)) {
     /**
      * Component: Checkbox
@@ -141,7 +156,7 @@ const generate: IGenerate = (node, options = {}) => {
      * 名称：勾选组
      * 不允许 detach
      */
-    returnString = CheckboxGroup(node, generate, additionalStyle);
+    returnString = CheckboxGroup(node, generate, additionalClassNames);
   } else if (
     /**
      * Component: Dialog
@@ -154,12 +169,16 @@ const generate: IGenerate = (node, options = {}) => {
     /**
      * Component: Form
      */
-    returnString = Form({node, generate, additionalStyle, useTailwind});
+    returnString = Form({node, generate, additionalClassNames});
   } else if (name === '表单' || mainComponent?.name === '表单') {
     /**
      * Component: FormItem
      */
-    returnString = FormItem({node, generate, additionalStyle, useTailwind});
+    returnString = FormItem({
+      node,
+      generate,
+      additionalClassNames,
+    });
   } else if (
     node.type === 'TEXT' &&
     (name === '表单-tip' || mainComponent?.name === '表单-tip')
@@ -167,7 +186,7 @@ const generate: IGenerate = (node, options = {}) => {
     /**
      * Component: FormTip
      */
-    returnString = FormTip(node, additionalStyle);
+    returnString = FormTip(node, additionalClassNames);
   } else if (
     /**
      * Component: Input
@@ -176,7 +195,7 @@ const generate: IGenerate = (node, options = {}) => {
      */
     mainComponent?.parent?.name === '输入框'
   ) {
-    returnString = Input(node, generate, additionalStyle);
+    returnString = Input({node, generate, additionalClassNames});
   } else if (
     /**
      * Component: NumericInput
@@ -185,14 +204,14 @@ const generate: IGenerate = (node, options = {}) => {
      */
     mainComponent?.parent?.name === '数字输入框'
   ) {
-    returnString = NumericInput(node, additionalStyle);
+    returnString = NumericInput(node, additionalClassNames);
   } else if (mainComponent?.parent?.name.includes('分页器')) {
     /**
      * Component: Pagination
      * 名称：分页器
      * 不允许 detach
      */
-    returnString = Pagination(node, additionalStyle);
+    returnString = Pagination(node, additionalClassNames);
   } else if (['单选', '单选状态'].includes(mainComponent?.parent?.name)) {
     /**
      * Component: Radio
@@ -206,123 +225,126 @@ const generate: IGenerate = (node, options = {}) => {
      * 名称：单选组
      * 不允许 detach
      */
-    returnString = RadioGroup(node, generate, additionalStyle);
+    returnString = RadioGroup(node, generate, additionalClassNames);
   } else if (mainComponent?.parent?.name.includes('颜色选择器')) {
     /**
      * Component: ColorPicker
      * 名称：颜色选择器
      * 不允许 detach
      */
-    returnString = ColorPicker(node, additionalStyle);
+    returnString = ColorPicker(node, additionalClassNames);
   } else if (mainComponent?.parent?.name.includes('日期选择器')) {
     /**
      * Component: DatePicker
      * 名称：日期选择器
      * 不允许 detach
      */
-    returnString = DatePicker(node, additionalStyle);
+    returnString = DatePicker(node, additionalClassNames);
   } else if (mainComponent?.parent?.name.includes('树形选择器')) {
     /**
      * Component: TreeSelect
      * 名称：树形选择器
      * 不允许 detach
      */
-    returnString = TreeSelect(node, additionalStyle);
+    returnString = TreeSelect(node, additionalClassNames);
   } else if (name.includes('表格-') || mainComponent?.name.includes('表格-')) {
     /**
      * Component: Table
      */
-    returnString = Table(node, generate, additionalStyle);
+    returnString = Table(node, generate, additionalClassNames);
   } else if (mainComponent?.parent?.name.includes('导航页签')) {
     /**
      * Component: Tabs
      * 名称：导航页签
      * 不允许 detach
      */
-    returnString = Tabs(node, additionalStyle);
+    returnString = Tabs(node, additionalClassNames);
   } else if (mainComponent?.parent?.name.includes('时间选择器')) {
     /**
      * Component: TimePicker
      * 名称：时间选择器
      * 不允许 detach
      */
-    returnString = TimePicker(node, additionalStyle);
+    returnString = TimePicker(node, additionalClassNames);
   } else if (mainComponent?.parent?.name.includes('选择器')) {
     /**
      * Component: Select
      * 名称：选择器
      * 不允许 detach
      */
-    returnString = Select(node, additionalStyle);
+    returnString = Select(node, additionalClassNames);
   } else if (mainComponent?.parent?.name.includes('开关')) {
     /**
      * Component: Switch
      * 名称：开关
      * 不允许 detach
      */
-    returnString = Switch(node, additionalStyle);
+    returnString = Switch(node, additionalClassNames);
   } else if (mainComponent?.parent?.name.includes('上传')) {
     /**
      * Component: Upload
      * 名称：上传
      * 不允许 detach
      */
-    returnString = Upload(node, additionalStyle);
+    returnString = Upload(node, additionalClassNames);
   } else if (node.type === 'RECTANGLE') {
     /**
      * RectangleNode
      */
     returnString = RenderRectangleNode({
       node,
-      additionalStyle,
-      options,
+      additionalClassNames,
+    });
+  } else if (node.type === 'ELLIPSE') {
+    /**
+     * RectangleNode
+     */
+    returnString = RenderEllipseNode({
+      node,
+      additionalClassNames,
     });
   } else if (node.type === 'LINE') {
     /**
      * RectangleNode
      */
-    returnString = RenderLineNode(node, additionalStyle);
+    returnString = RenderLineNode(node, additionalClassNames);
   } else if (node.type === 'TEXT') {
     /**
      * TextNode
      */
     returnString = RenderTextNode({
       node,
-      additionalStyle,
-      options,
+      additionalClassNames,
     });
   } else if (mainComponent?.name.includes('/')) {
     /**
      * Component: Icon
      */
-    returnString = Icon(node, additionalStyle);
-  } else if ('parent' in node && node.parent.type === 'PAGE') {
-    if (children) {
-      childrenCodes = (layoutMode === 'NONE' ? reverseArr(children) : children)
-        .map((o: SceneNode) => generate(o, options))
-        .join('');
-    }
-    returnString = `<div>${childrenCodes}</div>`;
-  } else if ('children' in node) {
+    returnString = Icon(node, additionalClassNames);
+  }
+  // else if ('parent' in node && node.parent.type === 'PAGE') {
+  //   if (children) {
+  //     childrenCodes = (layoutMode === 'NONE' ? reverseArr(children) : children)
+  //       .map((o: SceneNode) => generate(o)
+  //       .join('');
+  //   }
+  //   returnString = `<div>${childrenCodes}</div>`;
+  // }
+  else if ('children' in node) {
     const childGenerated = (layoutMode === 'NONE'
       ? reverseArr(children)
       : children
     )
-      .map(o => generate(o, options))
+      .map(o => generate(o))
       .join('');
     if (childGenerated) {
-      let styleString = Object.keys(additionalStyle).length
-        ? `style={${stringifyStyle(additionalStyle)}}`
-        : '';
-
-      if (useTailwind) {
-        styleString = Object.keys(additionalStyle).length
-          ? `className="${styleObjectToTailwind(additionalStyle)}"`
-          : '';
+      let classNameString = '';
+      if (additionalClassNames.length) {
+        classNameString = `className="${additionalClassNames.join(' ')}"`;
       }
 
       returnString = `<div
-        ${styleString}>${childGenerated}</div>`;
+        ${classNameString}>${childGenerated}</div>`;
     }
   }
 
@@ -343,37 +365,19 @@ const generate: IGenerate = (node, options = {}) => {
 const poll = () => {
   const {selection} = figma.currentPage;
   if (selection.length === 1) {
-    const codes_inline = (generate(selection[0]) || '').replace(
-      /\n\s*\n/g,
-      '\n'
-    );
-    const codes_react = (
-      generate(selection[0], {useClassName: true}) || ''
-    ).replace(/\n\s*\n/g, '\n');
-
-    const codes_tailwind = (
-      generate(selection[0], {useTailwind: true}) || ''
-    ).replace(/\n\s*\n/g, '\n');
+    const codes = (generate(selection[0]) || '').replace(/\n\s*\n/g, '\n');
 
     figma.ui.postMessage({
       action: 'update',
-      codes_inline,
-      codes_react,
-      codes_tailwind,
+      codes,
     });
   }
 };
 
 poll();
 
-figma.ui.onmessage = (msg: {
-  type: string;
-  height: string;
-  useClassName: boolean;
-  useTailwind: boolean;
-}) => {
+figma.ui.onmessage = (msg: {type: string; height: string}) => {
   if (msg.type === 'generate') {
-    additionalClassNames = '';
     poll();
   }
   if (msg.type === 'resize') {

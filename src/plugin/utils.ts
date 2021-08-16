@@ -153,13 +153,6 @@ export const getPadding = (node: SceneNode) => {
 };
 
 /**
- * 将 style 对象转换成 string
- * @param style IBaseObject
- */
-export const stringifyStyle = (style: IBaseObject): string =>
-  JSON.stringify(style).replace(/"([^"]+)":/g, '$1:');
-
-/**
  * 返回 intent
  * @param node: SceneNode
  * @return TIntent
@@ -395,7 +388,7 @@ export const convertColorToCSS = (
 export const convertPxToNum = (num: string | number): string =>
   `${num}`.split('px')[0];
 
-const colors = {
+export const colors = {
   transparent: 'transparent',
   currentColor: 'current',
   '#000': 'black',

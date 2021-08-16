@@ -1,6 +1,6 @@
 import {convertColorToCSS, stringifyStyle} from './utils';
 
-const Icon = (node: SceneNode, additionalStyle: IBaseObject) => {
+const Icon = (node: SceneNode, additionalClassNames: IBaseObject) => {
   let {width} = node;
   width = Math.round(width);
   let mainComponent: ComponentNode;
@@ -37,8 +37,8 @@ const Icon = (node: SceneNode, additionalStyle: IBaseObject) => {
       ${width !== 18 ? `size={${width}}` : ''}
       ${color ? `color="${color}"` : ''}
       ${
-        Object.keys(additionalStyle).length
-          ? `style={${stringifyStyle(additionalStyle)}}`
+        Object.keys(additionalClassNames).length
+          ? `style={${stringifyStyle(additionalClassNames)}}`
           : ''
       }
     />

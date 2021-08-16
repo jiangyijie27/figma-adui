@@ -3,7 +3,7 @@ import {reverseArr, stringifyStyle} from './utils';
 const RenderContainer = (
   node: SceneNode,
   generate: IGenerate,
-  additionalStyle: IBaseObject
+  additionalClassNames: IBaseObject
 ) => {
   const {name} = node;
   let childrenNodes = '';
@@ -12,31 +12,31 @@ const RenderContainer = (
       .map(o => generate(o))
       .join('');
   }
-  if (name.includes("Container: flex")) {
-    additionalStyle.display = 'flex';
-    additionalStyle.alignItems = 'center';
+  if (name.includes('Container: flex')) {
+    additionalClassNames.display = 'flex';
+    additionalClassNames.alignItems = 'center';
   }
 
   if (name === 'Container: flex-sb') {
-    additionalStyle.justifyContent = 'space-between';
+    additionalClassNames.justifyContent = 'space-between';
   }
 
   if (name === 'Container: flex-c') {
-    additionalStyle.justifyContent = 'center';
+    additionalClassNames.justifyContent = 'center';
   }
 
   if (node?.parent.name === '表单') {
-    delete additionalStyle.marginLeft;
+    delete additionalClassNames.marginLeft;
   }
 
-  if (additionalStyle.display === "block") {
-    delete additionalStyle.display
+  if (additionalClassNames.display === 'block') {
+    delete additionalClassNames.display;
   }
 
   return `<div
     ${
-      Object.keys(additionalStyle).length
-        ? `style={${stringifyStyle(additionalStyle)}}`
+      Object.keys(additionalClassNames).length
+        ? `style={${stringifyStyle(additionalClassNames)}}`
         : ''
     }
   >

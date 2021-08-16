@@ -1,25 +1,14 @@
-import {
-  convertNumToPx,
-  convertColorToCSS,
-  toCamelCase,
-  toHyphenCase,
-  stringifyStyle,
-  styleObjectToCSS,
-  styleObjectToTailwind,
-} from './utils';
+import {colors, convertColorToCSS} from './utils';
 
 const TextNode = ({
   node,
-  additionalStyle,
+  additionalClassNames,
   tagName = 'div',
-  options = {},
 }: {
   node: TextNode;
-  additionalStyle: IBaseObject;
+  additionalClassNames: string[];
   tagName?: 'div' | 'span';
-  options: IBaseObject;
 }) => {
-  const {useTailwind} = options;
   const {
     characters,
     fontName,
@@ -31,29 +20,30 @@ const TextNode = ({
     fills,
     width,
   } = node;
-  const style: IBaseObject = {};
+  let styleString = '';
   /**
    * width
    */
   if (textAutoResize !== 'WIDTH_AND_HEIGHT') {
-    additionalStyle.width = `${Math.round(width)}px`;
-  }
-  /**
-   * textAlign
-   */
-  switch (textAlignHorizontal) {
-    case 'CENTER':
-      additionalStyle.textAlign = 'center';
-      break;
-    case 'RIGHT':
-      additionalStyle.textAlign = 'right';
-      break;
+    additionalClassNames.push(`w-${Math.round(width)}`);
+
+    /**
+     * textAlign
+     */
+    switch (textAlignHorizontal) {
+      case 'CENTER':
+        additionalClassNames.push('text-center');
+        break;
+      case 'RIGHT':
+        additionalClassNames.push('text-right');
+        break;
+    }
   }
   /**
    * fontSize
    */
   if (typeof fontSize === 'number') {
-    style.fontSize = convertNumToPx(fontSize);
+    additionalClassNames.push(`text-${Math.round(fontSize)}`);
   }
   /**
    * fontWeight
@@ -80,8 +70,10 @@ const TextNode = ({
       Extrablack: 950,
       Ultrablack: 950,
     };
-    if (fontWeightMapping[fontWeight] !== 400) {
-      style.fontWeight = fontWeightMapping[fontWeight];
+    if (fontWeightMapping[fontWeight] === 500) {
+      additionalClassNames.push('font-medium');
+    } else if (fontWeightMapping[fontWeight] > 500) {
+      additionalClassNames.push('font-bold');
     }
   }
   /**
@@ -93,9 +85,7 @@ const TextNode = ({
       readonly unit: 'PIXELS' | 'PERCENT';
     };
     if (unit === 'PIXELS') {
-      style.lineHeight = convertNumToPx(value);
-    } else if (unit === 'PERCENT') {
-      style.lineHeight = `${value}%`;
+      additionalClassNames.push(`leading-${value}`);
     }
   }
   /**
@@ -105,9 +95,7 @@ const TextNode = ({
     const {unit, value} = letterSpacing;
     if (value !== 0) {
       if (unit === 'PIXELS') {
-        style.letterSpacing = convertNumToPx(value);
-      } else {
-        style.letterSpacing = `${value / 100}em;`;
+        additionalClassNames.push(`tracking-${value}`);
       }
     }
   }
@@ -120,27 +108,24 @@ const TextNode = ({
     fills.length === 1 &&
     fills[0].type === 'SOLID'
   ) {
-    style.color = convertColorToCSS(fills[0]);
+    const color = convertColorToCSS(fills[0]);
+    if (colors[color]) {
+      additionalClassNames.push(`text-${colors[color]}`);
+    } else {
+      styleString = `style={{ color: "${color}" }}`;
+    }
   }
 
-  let finalStyle = {
-    ...additionalStyle,
-    ...style,
-  };
+  let classNameString = '';
 
-  let finalString = Object.keys(finalStyle).length
-    ? `style={${stringifyStyle(finalStyle)}}`
-    : '';
-
-  if (useTailwind) {
-    finalString = Object.keys(finalStyle).length
-      ? `className="${styleObjectToTailwind(finalStyle)}"`
-      : '';
+  if (additionalClassNames.length) {
+    classNameString = `className="${additionalClassNames.join(' ')}"`;
   }
 
   return `
     <${tagName}
-      ${finalString}
+      ${classNameString}
+      ${styleString}
     >
       ${characters}
     </${tagName}>

@@ -1,6 +1,6 @@
-import {reverseArr, stringifyStyle, styleObjectToTailwind} from './utils';
+import {reverseArr} from './utils';
 const CardHeader = (props: IRenderProps) => {
-  const {node, generate, additionalStyle = {}, useTailwind} = props;
+  const {node, generate, additionalClassNames = []} = props;
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   if ('layoutMode' in node) {
     layoutMode = node.layoutMode;
@@ -30,7 +30,7 @@ const CardHeader = (props: IRenderProps) => {
       subTitle = subTitleChild.characters;
     }
     if (topContentChild && 'children' in topContentChild) {
-      topContent = generate(topContentChild, {useTailwind});
+      topContent = generate(topContentChild);
     }
 
     const childs = node.children.filter(o => {
@@ -42,22 +42,18 @@ const CardHeader = (props: IRenderProps) => {
     });
 
     childString = (layoutMode === 'NONE' ? reverseArr(childs) : childs)
-      .map(o => generate(o, {useTailwind}))
+      .map(o => generate(o))
       .join('');
   }
 
   if ('effects' in node && node.effects.length) {
-    additionalStyle.boxShadow = '0 1px 0 rgba(0, 0, 0, 0.06)';
+    additionalClassNames.push('shadow-b-tp-gray-100');
   }
 
-  let styleString = Object.keys(additionalStyle).length
-    ? `style={${stringifyStyle(additionalStyle)}}`
-    : '';
+  let classNameString = '';
 
-  if (useTailwind) {
-    styleString = Object.keys(additionalStyle).length
-      ? `className="${styleObjectToTailwind(additionalStyle)}"`
-      : '';
+  if (additionalClassNames.length) {
+    classNameString = `className="${additionalClassNames.join(' ')}"`;
   }
 
   return `<Card.Header
@@ -70,7 +66,7 @@ const CardHeader = (props: IRenderProps) => {
       }`
           : ''
       }
-      ${styleString}
+      ${classNameString}
       ${
         childString
           ? `

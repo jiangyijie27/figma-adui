@@ -1,7 +1,7 @@
-import {reverseArr, stringifyStyle, styleObjectToTailwind} from './utils';
+import {reverseArr} from './utils';
 
 const Card = (props: IRenderProps) => {
-  const {node, generate, additionalStyle = {}, useTailwind} = props;
+  const {node, generate, additionalClassNames = []} = props;
   let layoutMode: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   if ('layoutMode' in node) {
     layoutMode = node.layoutMode;
@@ -14,24 +14,20 @@ const Card = (props: IRenderProps) => {
       ? reverseArr(node.children)
       : node.children
     )
-      .map(o => generate(o, {useTailwind}))
+      .map(o => generate(o))
       .join('');
   }
 
-  let styleString = Object.keys(additionalStyle).length
-    ? `style={${stringifyStyle(additionalStyle)}}`
-    : '';
+  let classNameString = '';
 
-  if (useTailwind) {
-    styleString = Object.keys(additionalStyle).length
-      ? `className="${styleObjectToTailwind(additionalStyle)}"`
-      : '';
+  if (additionalClassNames.length) {
+    classNameString = `className="${additionalClassNames.join(' ')}"`;
   }
 
   const cardNodes = `
     <Card
       ${size ? `size="${size}"` : ''}
-      ${styleString}
+      ${classNameString}
     >
       ${childrenNodes}
     </Card>
