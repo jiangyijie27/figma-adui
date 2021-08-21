@@ -30,12 +30,19 @@ import RenderLineNode from './RenderLineNode';
 import RenderTextNode from './RenderTextNode';
 import getLayoutClassName from './getLayoutClassName';
 import TreeSelect from './TreeSelect';
-import {reverseArr} from './utils';
+import {
+  reverseArr,
+  convertNumToPx,
+  convertColorToCSS,
+  colors,
+  shadows,
+  rgbToHex,
+} from './utils';
 
 figma.showUI(__html__, {width: 700, height: 1200});
 
 const generate: IGenerate = node => {
-  console.log(node, 'yijie');
+  let styleString = '';
   let returnString = '';
   if (!node || !node.visible) {
     return '';
@@ -111,7 +118,7 @@ const generate: IGenerate = node => {
      * Component: Card
      */
     returnString = Card({node, generate, additionalClassNames});
-  } else if (name === '标题 + 描述文字') {
+  } else if (name === '卡片顶栏') {
     returnString = CardHeader({
       node,
       generate,
@@ -338,13 +345,158 @@ const generate: IGenerate = node => {
       .map(o => generate(o))
       .join('');
     if (childGenerated) {
+      /**
+       * fills
+       */
+      const {
+        // @ts-ignore
+        fills,
+      } = node;
+
+      if (fills && Array.isArray(fills)) {
+        // 最简单的情况，纯色背景
+        if (fills.length === 1) {
+          const color = convertColorToCSS(fills[0]);
+          if (colors[color]) {
+            additionalClassNames.push(`bg-${colors[color]}`);
+          } else if (color.includes('url')) {
+            additionalClassNames.push('bg-cover');
+            styleString = `backgroundImage: "${color}"`;
+          } else if (color) {
+            styleString = `backgroundColor: "${color}"`;
+          }
+        }
+      }
+
+      /**
+       * strokes
+       */
+      let strokes: any;
+      if ('strokes' in node) {
+        strokes = node.strokes;
+      }
+      let strokeWeight: any;
+      if ('strokeWeight' in node) {
+        strokeWeight = node.strokeWeight;
+      }
+
+      if (
+        strokes &&
+        strokes.length === 1 &&
+        strokes[0].type === 'SOLID' &&
+        strokes[0].visible
+      ) {
+        if (
+          shadows[`0 0 0 ${strokeWeight}px ${convertColorToCSS(strokes[0])}`]
+        ) {
+          additionalClassNames.push(
+            `shadow-${
+              shadows[
+                `0 0 0 ${strokeWeight}px ${convertColorToCSS(strokes[0])}`
+              ]
+            }`
+          );
+        } else {
+          styleString = `${
+            styleString ? `${styleString}, ` : ''
+          }border: "${strokeWeight}px solid ${convertColorToCSS(strokes[0])}"`;
+        }
+      }
+
+      /**
+       * Shadow
+       */
+      if ('effects' in node) {
+        const {effects} = node;
+        const shadowss = effects.filter(
+          o => o.type === 'DROP_SHADOW' || o.type === 'INNER_SHADOW'
+        ) as ShadowEffect[];
+        if (shadowss.length) {
+          const shadowsStr = shadowss.map(o => {
+            const {color, offset, radius, spread, visible, type} = o;
+
+            let colorVal = '';
+            if (!visible) {
+              return '';
+            }
+            if (color.a === 1) {
+              colorVal = rgbToHex(color);
+            } else {
+              colorVal = `rgba(${Math.round(color.r * 255)}, ${Math.round(
+                color.g * 255
+              )}, ${Math.round(color.b * 255)}, ${Number(color.a.toFixed(2))})`;
+            }
+            return `${type === 'INNER_SHADOW' ? 'inset ' : ''}${convertNumToPx(
+              offset.x
+            )} ${convertNumToPx(offset.y)} ${convertNumToPx(
+              radius
+            )} ${convertNumToPx(spread)} ${colorVal}`;
+          });
+
+          const shadowFinal = shadowsStr.filter(o => o).join(', ');
+          if (shadows[shadowFinal]) {
+            additionalClassNames.push(`shadow-${shadows[shadowFinal]}`);
+          } else {
+            styleString = `${
+              styleString ? `${styleString}, ` : ''
+            }boxShadow: "${shadowFinal}"`;
+          }
+
+          // if (type === 'TEXT') {
+          //   additionalClassNames.textShadow = shadowsStr
+          //     .filter(o => o)
+          //     .join(', ');
+          // } else {
+          //   additionalClassNames.boxShadow = shadowsStr
+          //     .filter(o => o)
+          //     .join(', ');
+          // }
+        }
+      }
+
+      /**
+       * Radius
+       */
+      const {
+        // @ts-ignore
+        bottomLeftRadius,
+        // @ts-ignore
+        bottomRightRadius,
+        // @ts-ignore
+        cornerRadius,
+        // @ts-ignore
+        topLeftRadius,
+        // @ts-ignore
+        topRightRadius,
+      } = node;
+
+      // 如果四个 radius 不同，则 cornerRadius 会是 symbol
+      if (typeof cornerRadius === 'number' && cornerRadius !== 0) {
+        additionalClassNames.push(`rounded-${cornerRadius}`);
+      } else {
+        if (topLeftRadius) {
+          additionalClassNames.push(`rounded-tl-${topLeftRadius}`);
+        }
+        if (topRightRadius) {
+          additionalClassNames.push(`rounded-tr-${topRightRadius}`);
+        }
+        if (bottomLeftRadius) {
+          additionalClassNames.push(`rounded-bl-${bottomLeftRadius}`);
+        }
+        if (bottomRightRadius) {
+          additionalClassNames.push(`rounded-br-${bottomRightRadius}`);
+        }
+      }
+
       let classNameString = '';
       if (additionalClassNames.length) {
         classNameString = `className="${additionalClassNames.join(' ')}"`;
       }
 
       returnString = `<div
-        ${classNameString}>${childGenerated}</div>`;
+        ${classNameString}
+        ${styleString ? `style={{ ${styleString} }}` : ''}
+      >${childGenerated}</div>`;
     }
   }
 

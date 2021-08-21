@@ -50,6 +50,16 @@ const CardHeader = (props: IRenderProps) => {
     additionalClassNames.push('shadow-b-tp-gray-100');
   }
 
+  /**
+   * 如果没有 paddingBottom，则要加 pb-0，因为 cardHeader 默认有 paddingBottom
+   */
+  const pbFound = additionalClassNames.find(
+    o => o.includes('py-') || o.includes('pb-')
+  );
+  if (!pbFound) {
+    additionalClassNames.unshift('pb-0');
+  }
+
   let classNameString = '';
 
   if (additionalClassNames.length) {

@@ -399,7 +399,9 @@ export const colors = {
   '#d9514c': 'red',
   '#ffffff': 'gray-0',
   '#fafafa': 'gray-50',
+  '#fdfdfd': 'gray-50',
   '#f2f2f2': 'gray-100',
+  '#f3f3f3': 'gray-100',
   '#ebebeb': 'gray-200',
   '#e6e6e6': 'gray-300',
   '#e0e0e0': 'gray-400',
@@ -421,9 +423,10 @@ export const colors = {
   'rgba(0, 0, 0, 0.88)': 'tp-gray-900',
 };
 
-const shadows = {
+export const shadows = {
   none: 'none',
   '0 0 0 1px rgba(223, 223, 223, 0.45)': 0,
+  '0 0 0 1px rgba(223, 223, 223, 0.5)': 0,
   '0 0 0 1px rgba(223, 223, 223, 0.5), 0 3px 6px 0 rgba(0, 0, 0, 0.04)': 1,
   '0 0 0 1px rgba(219, 219, 219, 0.55),0 3px 5px 0 rgba(0, 0, 0, 0.05), 0 6px 15px 0 rgba(0, 0, 0, 0.05)': 2,
   '0 0 0 1px rgba(219, 219, 219, 0.7), 0 8px 20px 0 rgba(0, 0, 0, 0.08), 0 4px 10px 0 rgba(0, 0, 0, 0.07)': 3,
@@ -431,14 +434,15 @@ const shadows = {
 };
 Object.keys(colors).forEach(key => {
   const value = colors[key];
-  shadows[`0 -1px 0 ${key}`] = `t-${value}`;
-  shadows[`0 1px 0 ${key} inset`] = `t-inset-${value}`;
-  shadows[`0 1px 0 ${key}`] = `b-${value}`;
-  shadows[`0 -1px 0 ${key} inset`] = `b-inset-${value}`;
-  shadows[`1px 0 0 ${key}`] = `r-${value}`;
-  shadows[`-1px 0 0 ${key} inset`] = `r-inset-${value}`;
-  shadows[`-1px 0 0 ${key}`] = `l-${value}`;
-  shadows[`1px 0 0 ${key} inset`] = `l-inset-${value}`;
+  shadows[`0 0 0 1px ${key}`] = `0 0 0 1px ${value}`;
+  shadows[`0 -1px 0 0 ${key}`] = `t-${value}`;
+  shadows[`0 1px 0 0 ${key} inset`] = `t-inset-${value}`;
+  shadows[`0 1px 0 0 ${key}`] = `b-${value}`;
+  shadows[`0 -1px 0 0 ${key} inset`] = `b-inset-${value}`;
+  shadows[`1px 0 0 0 ${key}`] = `r-${value}`;
+  shadows[`-1px 0 0 0 ${key} inset`] = `r-inset-${value}`;
+  shadows[`-1px 0 0 0 ${key}`] = `l-${value}`;
+  shadows[`1px 0 0 0 ${key} inset`] = `l-inset-${value}`;
 });
 
 export const styleObjectToTailwind = (styleParam: IBaseObject) => {

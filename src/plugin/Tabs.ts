@@ -1,6 +1,6 @@
-import {getValueFromNode, stringifyStyle} from './utils';
+import {getValueFromNode} from './utils';
 
-const Tabs = (node: SceneNode, additionalClassNames: IBaseObject) => {
+const Tabs = (node: SceneNode) => {
   let size = getValueFromNode('尺寸', node);
   let childrenNodes = '';
   let defaultValue = '';
@@ -12,18 +12,8 @@ const Tabs = (node: SceneNode, additionalClassNames: IBaseObject) => {
 
     childrenNodes = children
       .map(o => {
-        let active = false;
-        let disabled = false;
-        const status = getValueFromNode('状态', o);
-        switch (status) {
-          case '选中':
-            active = true;
-            break;
-          case '禁用':
-            disabled = true;
-            break;
-          default:
-        }
+        const active = getValueFromNode('选中', o) === 'on';
+        const disabled = getValueFromNode('禁用', o) === 'on';
 
         let title = '';
         if ('children' in o) {
@@ -52,11 +42,6 @@ const Tabs = (node: SceneNode, additionalClassNames: IBaseObject) => {
     <Tabs
       defaultValue="${defaultValue}"
       ${size ? `size="${size}"` : ''}
-      ${
-        Object.keys(additionalClassNames).length
-          ? `style={${stringifyStyle(additionalClassNames)}}`
-          : ''
-      }
     >
       ${childrenNodes}
     </Tabs>

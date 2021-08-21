@@ -1,12 +1,12 @@
-import {getValueFromNode, stringifyStyle} from './utils';
+import {getValueFromNode} from './utils';
 
-const Pagination = (node: SceneNode, additionalClassNames: IBaseObject) => {
+const Pagination = (node: SceneNode, additionalClassNames: string[]) => {
   const {name} = node;
   const size = getValueFromNode('尺寸', node);
   let showButtonJumper = true;
   let showInputJumper = false;
   let theme: TTheme = null;
-  let align = '';
+  let align = 'right';
 
   let mainComponent: ComponentNode;
   if ('mainComponent' in node.parent) {
@@ -42,11 +42,6 @@ const Pagination = (node: SceneNode, additionalClassNames: IBaseObject) => {
       ${size ? `size="${size}"` : ''}
       ${theme ? `theme="${theme}"` : ''}
       total={99}
-      ${
-        Object.keys(additionalClassNames).length
-          ? `style={${stringifyStyle(additionalClassNames)}}`
-          : ''
-      }
     />
   `;
 };

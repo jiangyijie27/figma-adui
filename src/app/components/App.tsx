@@ -55,7 +55,7 @@ class App extends React.Component {
   state = {
     codes_original: '',
     codes: '',
-    zoom: 1,
+    zoom: 0.75,
     height: '1200',
     copied: false,
   };
@@ -134,11 +134,11 @@ class App extends React.Component {
             alignItems: 'center',
             justifyContent: 'space-between',
             marginBottom: '8px',
-            fontSize: '13px',
+            fontSize: '12px',
           }}
         >
           <Button.Group size="mini">
-            {[0.25, 0.5, 1].map(o => (
+            {[0.25, 0.5, 0.75, 1].map(o => (
               <Button
                 key={o}
                 active={zoom === o}
@@ -162,11 +162,12 @@ class App extends React.Component {
         </div>
         <div
           style={{
+            marginBottom: '12px',
             padding: '40px',
             overflow: 'auto',
             resize: 'both',
-            backgroundColor: '#fafafa',
             border: '1px solid #eee',
+            borderRadius: '4px',
           }}
         >
           <div style={{zoom}}>
